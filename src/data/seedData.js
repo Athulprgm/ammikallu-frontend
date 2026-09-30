@@ -1,0 +1,280 @@
+export const CATEGORIES_SEED = [
+  {
+    id: 'curry-powder',
+    name: 'Curry Powders',
+    malayalam: 'കറിപ്പൊടികൾ',
+    count: 2,
+    image: '/manjal-podi/250g.png',
+    description: 'Authentic stone-ground Kerala turmeric powder, Kasargod chilli powder, and traditional heritage blends.'
+  }
+];
+
+export const SELLERS_SEED = [
+  {
+    id: 'seller-spices',
+    name: "Kasargod Heritage Spices",
+    malayalamName: "സുധ ചേച്ചിയുടെ നാടൻ പൊടികൾ",
+    owner: "Sudha Raveendran",
+    district: "Kasargod",
+    city: "Kanhangad",
+    rating: 4.98,
+    reviewsCount: 312,
+    specialty: "Single-origin Turmeric, Kashmiri Chilli, Tellicherry Pepper & Stone-Ground Masalas",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80",
+    coverImage: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=1000&q=80",
+    status: "approved",
+    joinedDate: "2023-08-10",
+    description: "Farm-direct spices harvested in Kasargod. Sun-dried naturally, hand-sorted, and stone-ground on granite Ammikkallu with zero artificial colors, starch fillers, or chemical aromas.",
+    phone: "+91 94473 11890",
+    verified: true,
+    badges: ["High Curcumin (>5.4%)", "Traditional Ammikkallu Ground", "Zero Adulteration Guarantee", "Single Origin"],
+  },
+  {
+    id: 'seller-1',
+    name: "Anju's Home Bakery",
+    malayalamName: "അഞ്ചൂസ് ഹോം ബേക്കറി",
+    owner: "Anju Mathew",
+    district: "Kottayam",
+    city: "Pala",
+    rating: 4.92,
+    reviewsCount: 184,
+    specialty: "Whole Wheat Cardamom Rusks, Desi Ghee Nankhatai & Belgian Brownies",
+    image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&q=80",
+    coverImage: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1000&q=80",
+    status: "approved",
+    joinedDate: "2024-03-15",
+    description: "Handcrafted oven-baked treats made with stone-ground whole wheat, pure cow ghee, unrefined sugar, and natural spices. Baked in small daily batches with love.",
+    phone: "+91 94471 28901",
+    verified: true,
+    badges: ["Pure Desi Ghee", "Whole Wheat Bakes", "Zero Margarine", "Eggless Options"],
+  },
+  {
+    id: 'seller-3',
+    name: "Malabar Kitchen",
+    malayalamName: "മലബാർ കിച്ചൺ",
+    owner: "Fathima & Razia",
+    district: "Kannur",
+    city: "Thalassery",
+    rating: 4.88,
+    reviewsCount: 220,
+    specialty: "Wood-Pressed Coconut Oil Banana Chips, Achappam & Crispy Snacks",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",
+    coverImage: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=1000&q=80",
+    status: "approved",
+    joinedDate: "2024-04-01",
+    description: "Famous Thalassery evening snacks fried fresh in pure wood-pressed Kerala coconut oil. Crispy, golden, wafer-thin, and sealed in eco-friendly banana leaves.",
+    phone: "+91 97452 33445",
+    verified: true,
+    badges: ["Wood-Pressed Coconut Oil", "No Palm Oil", "FSSAI Registered"],
+  },
+  {
+    id: 'seller-2',
+    name: "Nila Homemade Foods",
+    malayalamName: "നിള ഹോംമേഡ് ഫുഡ്‌സ്",
+    owner: "Sujatha Nair",
+    district: "Kozhikode",
+    city: "Calicut Beach Road",
+    rating: 4.95,
+    reviewsCount: 240,
+    specialty: "Claypot Mango Pickles, Garlic Pickle & Kozhikode Black Halwa",
+    image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=80",
+    coverImage: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=1000&q=80",
+    status: "approved",
+    joinedDate: "2024-01-10",
+    description: "Authentic Kozhikode home kitchen recipes passed down 3 generations. Ground on traditional Ammikkallu with cold-pressed gingelly oil and sun-cured spices.",
+    phone: "+91 98460 11223",
+    verified: true,
+    badges: ["Heritage 3rd Gen Recipe", "Ammikkallu Ground", "Zero Preservatives"],
+  },
+  {
+    id: 'seller-4',
+    name: "Veettile Ruchi",
+    malayalamName: "വീട്ടിലെ രുചി",
+    owner: "Lakshmi Amma",
+    district: "Thrissur",
+    city: "Guruvayur",
+    rating: 4.9,
+    reviewsCount: 195,
+    specialty: "Slow Copper-Uruli Chakka Varattiyathu, Lemon Pickles & Sambar Podi",
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=80",
+    coverImage: "https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?w=1000&q=80",
+    status: "approved",
+    joinedDate: "2023-11-20",
+    description: "Traditional Thrissur mother's kitchen specials. Prepared in heavy bronze Uruli over slow firewood for deep authentic aroma and long shelf life without chemicals.",
+    phone: "+91 94002 67890",
+    verified: true,
+    badges: ["Uruli Firewood Cooked", "No Artificial Color", "Authentic Amma Recipe"],
+  }
+];
+
+export const PRODUCTS_SEED = [
+  {
+    id: 'prod-manjal-podi',
+    name: 'Kasargod Heritage Manjal Podi (നാടൻ മഞ്ഞൾപ്പൊടി)',
+    slug: 'kasargod-heritage-manjal-podi',
+    sellerId: 'seller-spices',
+    categoryId: 'curry-powder',
+    price: 160,
+    salePrice: 135,
+    rating: 4.99,
+    reviewsCount: 184,
+    weight: '250g',
+    unit: 'Aroma-Sealed Pouch',
+    preparationTime: 'Cold Stone Ground',
+    shelfLife: '12 Months',
+    heatLevel: 'Warm & Earthy Aroma',
+    curcuminContent: '5.6% Active Curcumin',
+    stoneGround: true,
+    sunDried: true,
+    batchNo: 'KSG-MNJ-2609',
+    grindDate: 'Sep 2026 Small Batch',
+    ingredients: '100% Pure Kasargod Pratibha Turmeric Rhizomes. 14-day sun-cured on natural reed mats, ambient temperature granite stone ground. Zero starch, zero artificial food dyes.',
+    allergenInformation: 'Pure single-origin botanical spice. 100% Vegan & Gluten-Free.',
+    isVegetarian: true,
+    isAvailable: true,
+    status: 'approved',
+    featured: true,
+    image: '/manjal-podi/250g.png',
+    gallery: [
+      '/manjal-podi/250g.png',
+      '/manjal-podi/100g.png',
+      '/manjal-podi/500g.png',
+      '/manjal-podi/1kg.png'
+    ],
+    description: 'Cultivated in the mineral-rich virgin soil of Kasargod hills, our heirloom turmeric is gently harvested, steamed in pure mountain spring water, sun-dried for 14 days, and cold-pounded on granite Ammikkallu. Cold stone milling protects the delicate essential oils and curcumin structure (>5.6%), yielding a luminous golden hue and deep medicinal warmth.',
+    shortDescription: 'Single-origin Kasargod organic turmeric, sun-cured & cold granite stone ground. High active curcumin (>5.6%) with radiant natural color.',
+    stock: 50,
+    weightOptions: [
+      { weight: '100g', price: 75, salePrice: 65, image: '/manjal-podi/100g.png' },
+      { weight: '250g', price: 160, salePrice: 135, image: '/manjal-podi/250g.png' },
+      { weight: '500g', price: 300, salePrice: 255, image: '/manjal-podi/500g.png' },
+      { weight: '1 Kg', price: 580, salePrice: 490, image: '/manjal-podi/1kg.png' }
+    ],
+    purityNotes: ['Certified >5.6% Curcumin', 'Unpolished Roots', 'No Artificial Dyes', 'Cold Stone-Pounded']
+  },
+  {
+    id: 'prod-mulaku-podi',
+    name: 'Kasargod Heritage Mulaku Podi (നാടൻ മുളകുപൊടി)',
+    slug: 'kasargod-heritage-mulaku-podi',
+    sellerId: 'seller-spices',
+    categoryId: 'curry-powder',
+    price: 180,
+    salePrice: 155,
+    rating: 4.98,
+    reviewsCount: 162,
+    weight: '250g',
+    unit: 'Aroma-Sealed Pouch',
+    preparationTime: 'Cold Stone Ground',
+    shelfLife: '12 Months',
+    heatLevel: 'Rich Crimson Color & Balanced Heat',
+    curcuminContent: null,
+    heatIndex: 'Medium Piquant',
+    stoneGround: true,
+    sunDried: true,
+    batchNo: 'KSG-MLK-2609',
+    grindDate: 'Sep 2026 Small Batch',
+    ingredients: '100% Pure Sun-Dried Kashmiri & Byadgi Chillies, de-seeded and stone-pounded on granite Ammikkallu. Zero artificial Sudan red dyes, zero mineral oils, zero added brick/starch powders.',
+    allergenInformation: 'Pure single-origin botanical spice. 100% Vegan & Gluten-Free.',
+    isVegetarian: true,
+    isAvailable: true,
+    status: 'approved',
+    featured: true,
+    image: '/mulakupodi/250g.png',
+    gallery: [
+      '/mulakupodi/250g.png',
+      '/mulakupodi/100g.png',
+      '/mulakupodi/500g.png',
+      '/mulakupodi/1kg.png'
+    ],
+    description: 'Slow-pounded on heritage granite Ammikkallu at ambient room temperatures, our Kasargod Mulaku Podi captures the vibrant natural ruby-red hue and aromatic capsaicin oils of sun-cured chillies without frictional heat oxidation. Imparts an authentic Kerala deep crimson gravy with balanced, gentle warmth.',
+    shortDescription: 'Cold granite stone-pounded Kasargod red chilli powder. Brilliant natural ruby color with rich aroma and balanced, authentic heat.',
+    stock: 45,
+    weightOptions: [
+      { weight: '100g', price: 85, salePrice: 72, image: '/mulakupodi/100g.png' },
+      { weight: '250g', price: 180, salePrice: 155, image: '/mulakupodi/250g.png' },
+      { weight: '500g', price: 340, salePrice: 295, image: '/mulakupodi/500g.png' },
+      { weight: '1 Kg', price: 650, salePrice: 560, image: '/mulakupodi/1kg.png' }
+    ],
+    purityNotes: ['100% Natural Crimson', 'Granite Stone-Pounded', 'Zero Artificial Dyes', 'Sun-Dried Whole Pods']
+  }
+];
+
+export const INITIAL_REVIEWS = [
+  {
+    id: 'rev-1',
+    productId: 'prod-manjal-podi',
+    userName: 'Ananya S. Pillai',
+    userCity: 'Kochi',
+    rating: 5,
+    date: '2026-09-22',
+    verified: true,
+    comment: 'The colour and aroma of this Kasargod turmeric is unlike anything in supermarkets! A pinch gives rich golden yellow with zero chemical smell. My morning golden milk tastes so pure.'
+  },
+  {
+    id: 'rev-2',
+    productId: 'prod-manjal-podi',
+    userName: 'Chef Harikrishnan',
+    userCity: 'Trivandrum',
+    rating: 5,
+    date: '2026-09-20',
+    verified: true,
+    comment: 'Real stone-ground turmeric! The fish curry got that gorgeous royal golden-orange hue without any bitter aftertaste. Truly traditional homemade quality.'
+  },
+  {
+    id: 'rev-3',
+    productId: 'prod-mulaku-podi',
+    userName: 'Kavitha Nambiar',
+    userCity: 'Kannur',
+    rating: 5,
+    date: '2026-09-24',
+    verified: true,
+    comment: 'The natural deep red colour of this chilli powder makes our Meen Curry look like an heirloom feast without any food color! Authentic stone-pounded aroma.'
+  },
+  {
+    id: 'rev-4',
+    productId: 'prod-mulaku-podi',
+    userName: 'Suresh Kumar',
+    userCity: 'Kasargod',
+    rating: 5,
+    date: '2026-09-21',
+    verified: true,
+    comment: 'Finally real homemade Kasargod mulaku podi online! The taste and heat are so balanced. 500g pack pouch is fresh and airtight.'
+  }
+];
+
+export const INITIAL_ORDERS = [];
+
+export const INITIAL_COUPONS = [
+  { code: 'SPICE15', discountPercent: 15, maxDiscount: 150, minOrder: 300, description: '15% OFF on homemade stone-ground spices & powders' },
+  { code: 'BAKE10', discountPercent: 10, maxDiscount: 100, minOrder: 250, description: '10% OFF on home-baked rusks, cookies & treats' },
+  { code: 'FREESHIP', discountAmount: 40, minOrder: 299, description: 'Free Home Delivery across Kerala on orders above ₹299' }
+];
+
+export const INITIAL_ADDRESSES = [
+  {
+    id: 'addr-1',
+    name: 'Athul Krishna',
+    phone: '+91 98765 43210',
+    addressLine1: 'Flat 4B, Emerald Heights, MG Road',
+    addressLine2: 'Near Maharajas College Metro Station',
+    city: 'Kochi',
+    district: 'Ernakulam',
+    state: 'Kerala',
+    pincode: '682016',
+    landmark: 'Behind Durbar Hall Ground',
+    isDefault: true
+  },
+  {
+    id: 'addr-2',
+    name: 'Athul (Parents Home)',
+    phone: '+91 94470 12345',
+    addressLine1: 'Krishna Kripa, Kottaram Road',
+    addressLine2: 'East Hill',
+    city: 'Kozhikode',
+    district: 'Kozhikode',
+    state: 'Kerala',
+    pincode: '673005',
+    landmark: 'Near East Hill Palace Museum',
+    isDefault: false
+  }
+];
