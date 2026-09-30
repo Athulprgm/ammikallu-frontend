@@ -980,7 +980,14 @@ export default function CustomerHome() {
 
       {/* ── 14. SCROLL-TRIGGERED INTERACTIVE PRODUCT POPUP ─── */}
       {showScrollPopup && !popupMinimized && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center animate-fade-in bg-white/20 backdrop-blur-2xl">
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center animate-fade-in backdrop-blur-2xl transition-colors duration-1000 ease-in-out"
+          style={{ 
+            backgroundColor: featuredProduct?.id === 'prod-manjal-podi' ? 'rgba(201, 149, 24, 0.25)' : 
+                             featuredProduct?.id === 'prod-kurumulaku-podi' ? 'rgba(70, 81, 58, 0.3)' : 
+                             'rgba(166, 61, 47, 0.25)' 
+          }}
+        >
 
           {/* Reduced Size Image Slide */}
           <div
