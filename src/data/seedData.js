@@ -196,6 +196,50 @@ export const PRODUCTS_SEED = [
       { weight: '1 Kg', price: 650, salePrice: 560, image: '/mulakupodi/1kg.png' }
     ],
     purityNotes: ['100% Natural Crimson', 'Granite Stone-Pounded', 'Zero Artificial Dyes', 'Sun-Dried Whole Pods']
+  },
+  {
+    id: 'prod-kurumulaku-podi',
+    name: 'Kasargod Heritage Kurumulaku Podi (നാടൻ കുരുമുളകുപൊടി)',
+    slug: 'kasargod-heritage-kurumulaku-podi',
+    sellerId: 'seller-spices',
+    categoryId: 'curry-powder',
+    price: 250,
+    salePrice: 220,
+    rating: 4.95,
+    reviewsCount: 140,
+    weight: '250g',
+    unit: 'Aroma-Sealed Pouch',
+    preparationTime: 'Cold Stone Ground',
+    shelfLife: '12 Months',
+    heatLevel: 'Strong & Pungent',
+    curcuminContent: null,
+    stoneGround: true,
+    sunDried: true,
+    batchNo: 'KSG-KRM-2609',
+    grindDate: 'Sep 2026 Small Batch',
+    ingredients: '100% Pure Tellicherry Black Pepper. Hand-picked, sun-dried, and stone-pounded. Zero fillers or papaya seeds.',
+    allergenInformation: 'Pure single-origin botanical spice. 100% Vegan & Gluten-Free.',
+    isVegetarian: true,
+    isAvailable: true,
+    status: 'approved',
+    featured: true,
+    image: '/kurumulaku podi/250g.png',
+    gallery: [
+      '/kurumulaku podi/250g.png',
+      '/kurumulaku podi/100g.png',
+      '/kurumulaku podi/500g.png',
+      '/kurumulaku podi/1kg.png'
+    ],
+    description: 'Sourced from the premium Tellicherry pepper vines, our black pepper is carefully sun-dried and stone-pounded to retain its bold, pungent flavor and volatile essential oils. Delivers an authentic peppery kick to your traditional dishes.',
+    shortDescription: 'Premium Tellicherry black pepper, sun-dried and cold stone ground for maximum aroma and pungency.',
+    stock: 60,
+    weightOptions: [
+      { weight: '100g', price: 110, salePrice: 95, image: '/kurumulaku podi/100g.png' },
+      { weight: '250g', price: 250, salePrice: 220, image: '/kurumulaku podi/250g.png' },
+      { weight: '500g', price: 480, salePrice: 420, image: '/kurumulaku podi/500g.png' },
+      { weight: '1 Kg', price: 920, salePrice: 800, image: '/kurumulaku podi/1kg.png' }
+    ],
+    purityNotes: ['100% Tellicherry Garbled', 'Stone-Pounded', 'Zero Papaya Seeds', 'High Piperine']
   }
 ];
 

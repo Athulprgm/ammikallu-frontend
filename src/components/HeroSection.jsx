@@ -119,9 +119,14 @@ export default function HeroSection() {
       const scrollH = el.offsetHeight - window.innerHeight;
       if (scrollH <= 0) return;
       const scrolled = -el.getBoundingClientRect().top;
-      const p = Math.max(0, Math.min(1, scrolled / scrollH));
-      setProgress(p);
-      targetFrameRef.current = 1 + p * (TOTAL_FRAMES - 1);
+      
+      // Video animation finishes at 1.8vh. 
+      // The rest of the sticky height (up to 400vh) keeps the video frozen for the popup.
+      const animationEndScroll = window.innerHeight * 1.8;
+      const videoP = Math.max(0, Math.min(1, scrolled / animationEndScroll));
+      
+      setProgress(videoP);
+      targetFrameRef.current = 1 + videoP * (TOTAL_FRAMES - 1);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
@@ -142,7 +147,7 @@ export default function HeroSection() {
     <section
       ref={containerRef}
       className="relative w-full"
-      style={{ height: '280vh' }}
+      style={{ height: '500vh' }}
     >
       {/* Sticky viewport */}
       <div className="sticky top-0 w-full h-[100svh] overflow-hidden">

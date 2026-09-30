@@ -50,7 +50,7 @@ export default function LoadingScreen({ onComplete }) {
       </div>
 
       {/* Brand name below */}
-      <img src="/logo.png" alt="Ammikallu" className="w-16 h-16 object-contain mb-2" />
+      <img src="/logo.png" alt="Ammikallu" className="h-16 w-auto object-contain mb-2" />
       <p className="mt-2 font-serif text-2xl text-[#171714] tracking-tight">Ammikallu</p>
       <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-[#68645B]">Heritage Stone-Ground</p>
 

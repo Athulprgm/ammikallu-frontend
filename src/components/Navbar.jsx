@@ -69,8 +69,8 @@ export default function Navbar() {
             className="flex items-center gap-3 shrink-0 group cursor-pointer"
             aria-label="Ammikallu Home"
           >
-            <div className={`overflow-hidden rounded-sm transition-all duration-300 ${scrolled ? 'w-8 h-8' : 'w-9 h-9'}`}>
-              <img src="/logo.png" alt="Ammikallu" className="w-full h-full object-contain" />
+            <div className={`transition-all duration-300 ${scrolled ? 'h-8' : 'h-10'}`}>
+              <img src="/logo.png" alt="Ammikallu" className="w-auto h-full object-contain" />
             </div>
             <div className={`transition-all duration-300 ${transparent ? 'text-white' : 'text-[#171714]'}`}>
               <span className={`font-serif block leading-none transition-all duration-300 ${scrolled ? 'text-xl' : 'text-2xl'}`}>
