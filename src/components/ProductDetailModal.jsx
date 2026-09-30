@@ -113,11 +113,29 @@ export default function ProductDetailModal() {
             {/* Left Column: Image Gallery with Creative Transition */}
             <div className="md:col-span-6 space-y-6">
               <div className="aspect-[4/5] w-full bg-[#F9F9F9] rounded-[24px] overflow-hidden relative flex flex-col items-center justify-center p-8 group">
+                <style>{`
+                  @keyframes productModalFloat {
+                    0% { transform: scale(1) translateY(0); filter: drop-shadow(0 15px 25px rgba(0,0,0,0.1)); }
+                    50% { transform: scale(1.06) translateY(-12px); filter: drop-shadow(0 25px 35px rgba(0,0,0,0.2)); }
+                    100% { transform: scale(1) translateY(0); filter: drop-shadow(0 15px 25px rgba(0,0,0,0.1)); }
+                  }
+                  .anim-modal-product {
+                    animation: productModalFloat 6s ease-in-out infinite;
+                  }
+                `}</style>
+                
+                {/* Giant watermark text behind */}
+                <div className="absolute inset-0 flex items-center justify-center z-0 overflow-hidden pointer-events-none select-none">
+                  <span className="font-serif text-[18vw] md:text-[9vw] font-black text-[#EFEFEF] whitespace-nowrap opacity-80 -rotate-[10deg] scale-[1.3] tracking-tighter mix-blend-multiply">
+                    {selectedProduct.name.split('(')[0].trim().toUpperCase()}
+                  </span>
+                </div>
+
                 <img
                   key={activeImage}
                   src={activeImage}
                   alt={`${selectedProduct.name} - ${activeOption.weight}`}
-                  className="max-h-[85%] w-auto max-w-full object-contain anim-pack-switch"
+                  className="max-h-[85%] w-auto max-w-full object-contain anim-modal-product relative z-10 anim-pack-switch"
                   style={{ mixBlendMode: 'multiply' }}
                 />
               </div>

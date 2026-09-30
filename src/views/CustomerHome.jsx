@@ -991,11 +991,25 @@ export default function CustomerHome() {
             }}
             title="Click to view details"
           >
-            <img
-              src={getPopupImage()}
-              alt="Product Selection"
-              className="max-w-full max-h-full object-contain drop-shadow-2xl hover:scale-[1.02] transition-transform duration-700"
-            />
+            {flagshipProducts.slice(0, 3).map((p) => {
+              const isActive = p.id === featuredProduct?.id;
+              
+              const imgUrl = p.id === 'prod-mulaku-podi' ? "/mulaku-podi/select product-mulakupodi.png" : 
+                            p.id === 'prod-manjal-podi' ? "/manjal podi/select product-manjalpodi.png" : 
+                            "/kurumulaku podi/250g.png";
+
+              return (
+                <img
+                  key={p.id}
+                  src={imgUrl}
+                  alt={p.name}
+                  className={`absolute max-w-full max-h-full object-contain drop-shadow-2xl hover:scale-[1.08] transition-transform duration-700
+                    ${isActive ? 'animate-product-in z-10' : 'animate-product-out z-0'}
+                  `}
+                  style={{ display: isActive ? 'block' : undefined }} // Optional: keep it around for the animation to play out
+                />
+              )
+            })}
           </div>
 
 
