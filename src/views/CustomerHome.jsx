@@ -592,7 +592,7 @@ export default function CustomerHome() {
             </div>
 
             {curryPowderProducts.length > 0 ? (
-              <div className={`grid grid-cols-1 sm:grid-cols-2 ${curryPowderProducts.length <= 2 ? 'max-w-4xl mx-auto' : 'lg:grid-cols-4'} gap-[1px] border border-[#DDD7CA]`}>
+              <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[1px] border border-[#DDD7CA]">
                 {curryPowderProducts.map((prod, i) => (
                   <Reveal key={prod.id} delay={i * 60} className="border-r border-[#DDD7CA] last:border-r-0">
                     <ProductCard product={prod} />

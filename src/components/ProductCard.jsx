@@ -22,7 +22,7 @@ export default function ProductCard({ product, size = 'default' }) {
 
   return (
     <article
-      className="group flex flex-col cursor-pointer transition-all duration-700"
+      className="group flex flex-col cursor-pointer transition-all duration-700 p-6 md:p-8"
       onClick={() => openProductDetail(product)}
       role="button"
       tabIndex={0}
@@ -31,7 +31,7 @@ export default function ProductCard({ product, size = 'default' }) {
     >
       {/* Ultra-Premium Image Stage (Apple Style) */}
       <div
-        className={`relative w-full flex items-center justify-center bg-[#F2F2F4] rounded-[32px] overflow-visible mb-6 transition-colors duration-500 group-hover:bg-[#EBEBEF] ${
+        className={`relative w-full flex items-center justify-center bg-transparent overflow-visible mb-6 transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-[0.92] ${
           isLarge ? 'aspect-[3/4]' : 'aspect-square'
         }`}
       >
@@ -41,38 +41,10 @@ export default function ProductCard({ product, size = 'default' }) {
           alt={`${product.name} - ${opt.weight}`}
           loading="lazy"
           decoding="async"
-          className="max-h-[85%] w-auto max-w-full object-contain transition-all duration-700 ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:scale-[1.12] group-hover:-translate-y-3 group-hover:drop-shadow-[0_20px_30px_rgba(0,0,0,0.15)] relative z-10"
+          className="max-h-[85%] w-auto max-w-full object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-[1.5] group-hover:-translate-y-14 group-hover:drop-shadow-[0_30px_40px_rgba(0,0,0,0.3)] relative z-10 group-hover:z-50"
           style={{ mixBlendMode: 'multiply' }}
         />
 
-        {/* Selected weight badge (Minimal) */}
-        <div className="absolute bottom-5 left-5 z-20 pointer-events-none">
-          <span className="text-[11px] font-semibold tracking-wider bg-white/60 backdrop-blur-md text-[#171714] px-3 py-1.5 rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.05)]">
-            {opt.weight}
-          </span>
-        </div>
-
-        {/* Wishlist Button (Sleek Circle) */}
-        <button
-          onClick={e => { e.stopPropagation(); toggleWishlist(product.id); }}
-          className={`absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer z-20 ${
-            isWishlisted
-              ? 'bg-[#A63D2F] text-white shadow-[0_4px_12px_rgba(166,61,47,0.3)] scale-100'
-              : 'bg-white/60 backdrop-blur-md text-[#171714] opacity-0 group-hover:opacity-100 hover:scale-105 hover:bg-white'
-          }`}
-          aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-        >
-          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} strokeWidth={1.5} />
-        </button>
-
-        {/* Purity badge */}
-        {product.stoneGround && (
-          <div className="absolute top-5 left-5 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <span className="text-[9px] font-bold tracking-wider uppercase bg-[#171714] text-[#C99518] px-2.5 py-1.5 rounded-full">
-              Cold Stone
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Info Section (Flat, Borderless Typography) */}

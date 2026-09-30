@@ -119,12 +119,12 @@ export default function HeroSection() {
       const scrollH = el.offsetHeight - window.innerHeight;
       if (scrollH <= 0) return;
       const scrolled = -el.getBoundingClientRect().top;
-      
-      // Video animation finishes at 1.8vh. 
-      // The rest of the sticky height (up to 400vh) keeps the video frozen for the popup.
-      const animationEndScroll = window.innerHeight * 1.8;
+
+      // Video animation finishes exactly when the section scroll ends
+      // Multiplied by 0.85 so it fully finishes BEFORE the next section overlaps
+      const animationEndScroll = scrollH * 0.85;
       const videoP = Math.max(0, Math.min(1, scrolled / animationEndScroll));
-      
+
       setProgress(videoP);
       targetFrameRef.current = 1 + videoP * (TOTAL_FRAMES - 1);
     };
@@ -134,20 +134,30 @@ export default function HeroSection() {
   }, []);
 
   /* ── Parallax values from progress ─────────────────────────── */
-  const titleY    = progress * -120;
-  const titleOp   = Math.max(0, 1 - progress * 4);
-  const descY     = progress * -70;
-  const descOp    = Math.max(0, 1 - progress * 3.5);
-  const ctaY      = progress * -50;
-  const ctaOp     = Math.max(0, 1 - progress * 3);
-  const scrollOp  = Math.max(0, 1 - progress * 5);
+  /* ── Parallax values from progress ─────────────────────────── */
+  const titleY = progress * -120;
+  const titleOp = Math.max(0, 1 - progress * 4);
+  const descY = progress * -70;
+  const descOp = Math.max(0, 1 - progress * 3.5);
+  const ctaY = progress * -50;
+  const ctaOp = Math.max(0, 1 - progress * 3);
+  const scrollOp = Math.max(0, 1 - progress * 5);
+  
+  // Cinematic Text 2 (Mid Scroll)
+  const text2Op = Math.max(0, Math.min(1, (progress - 0.25) * 10, 1 - (progress - 0.55) * 10));
+  const text2Y = 40 - (progress - 0.25) * 150;
+
+  // Cinematic Text 3 (End Scroll)
+  const text3Op = Math.max(0, Math.min(1, (progress - 0.65) * 10, 1 - (progress - 0.9) * 10));
+  const text3Y = 40 - (progress - 0.65) * 150;
+
   const videoScale = 1 + progress * 0.08;
 
   return (
     <section
       ref={containerRef}
       className="relative w-full"
-      style={{ height: '200vh' }}
+      style={{ height: '350vh' }}
     >
       {/* Sticky viewport */}
       <div className="sticky top-0 w-full h-[100svh] overflow-hidden">
@@ -165,8 +175,34 @@ export default function HeroSection() {
           aria-hidden="true"
         />
 
-        {/* Left-bottom content block */}
-        <div className="absolute inset-0 flex items-end pointer-events-none">
+        {/* Cinematic Sequence 2: Mid Scroll */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <div 
+            className="text-center px-4"
+            style={{ opacity: text2Op, transform: `translateY(${text2Y}px)` }}
+          >
+            <span className="label text-[#C99518] mb-4 block tracking-[0.2em]">CRAFTED BY HAND</span>
+            <h2 className="display-lg text-white font-serif max-w-2xl mx-auto leading-tight drop-shadow-2xl">
+              Sun-cured. <br/> Cold stone ground.
+            </h2>
+          </div>
+        </div>
+
+        {/* Cinematic Sequence 3: End Scroll */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <div 
+            className="text-center px-4"
+            style={{ opacity: text3Op, transform: `translateY(${text3Y}px)` }}
+          >
+            <span className="label text-[#A63D2F] mb-4 block tracking-[0.2em]">PURE HERITAGE</span>
+            <h2 className="display-lg text-white font-serif max-w-2xl mx-auto leading-tight drop-shadow-2xl">
+              Experience the true <br/> aroma of Kerala.
+            </h2>
+          </div>
+        </div>
+
+        {/* Left-bottom content block (Sequence 1) */}
+        <div className="absolute inset-0 flex items-end pointer-events-none z-20">
           <div className="container-editorial pb-16 md:pb-20 w-full max-w-[760px]">
 
             {/* Eyebrow */}
@@ -179,7 +215,7 @@ export default function HeroSection() {
 
             {/* Headline */}
             <h1
-              className="display-xl text-white mb-6 will-transform pointer-events-none"
+              className="display-xl text-white mb-6 will-transform pointer-events-none drop-shadow-lg"
               style={{ opacity: titleOp, transform: `translateY(${titleY}px)` }}
             >
               The Taste<br />of Real Kerala.
@@ -205,7 +241,7 @@ export default function HeroSection() {
               >
                 Explore Collection
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
               <button
@@ -237,7 +273,7 @@ export default function HeroSection() {
 
         {/* Frame progress track (subtle, only during scroll) */}
         {progress > 0.05 && progress < 0.95 && (
-          <div className="absolute bottom-6 right-6 pointer-events-none">
+          <div className="absolute bottom-6 right-6 pointer-events-none z-30">
             <div className="flex items-center gap-3">
               <div className="w-24 h-[1px] bg-white/20 overflow-hidden">
                 <div

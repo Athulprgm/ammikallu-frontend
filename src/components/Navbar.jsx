@@ -56,7 +56,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           transparent ? 'nav-transparent' : 'nav-solid'
         }`}
         style={{ height: scrolled ? '60px' : '72px' }}
