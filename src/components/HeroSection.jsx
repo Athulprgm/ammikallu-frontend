@@ -147,7 +147,7 @@ export default function HeroSection() {
     <section
       ref={containerRef}
       className="relative w-full"
-      style={{ height: '500vh' }}
+      style={{ height: '200vh' }}
     >
       {/* Sticky viewport */}
       <div className="sticky top-0 w-full h-[100svh] overflow-hidden">

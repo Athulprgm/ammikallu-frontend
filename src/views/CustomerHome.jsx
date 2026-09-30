@@ -229,13 +229,13 @@ export default function CustomerHome() {
       const scrollY = window.scrollY;
       const vh = window.innerHeight;
 
-      // Show popup between 180vh and 400vh (during the 220vh frozen video scrub window)
-      if (scrollY > vh * 1.8 && scrollY <= vh * 4.0) {
+      // Show popup between 230vh and 450vh (over the sticky Philosophy section)
+      if (scrollY > vh * 2.3 && scrollY <= vh * 4.5) {
         if (!popupMinimized) {
           setShowScrollPopup(true);
           
           // Scrub products based on scroll progress (0 to 1) over the 2.2vh scrub window
-          const progress = (scrollY - (vh * 1.8)) / (vh * 2.2);
+          const progress = (scrollY - (vh * 2.3)) / (vh * 2.2);
           
           let targetIndex = 0;
           if (progress > 0.33 && progress <= 0.66) {
@@ -305,26 +305,28 @@ export default function CustomerHome() {
           className="py-4 border-b border-[#DDD7CA] text-[#68645B]"
         />
 
-        {/* ── 2. BRAND STATEMENT ──────────────────────────────── */}
-        <section className="py-24 md:py-32 border-b border-[#DDD7CA]" aria-labelledby="brand-statement" id="philosophy-section">
-          <div className="container-editorial">
-            <div className="max-w-3xl">
-              <Reveal>
-                <span className="label text-[#68645B]">The Ammikallu Philosophy</span>
-              </Reveal>
-              <Reveal delay={100}>
-                <h2
-                  id="brand-statement"
-                  className="display-lg text-[#171714] mt-6 mb-8"
-                >
-                  "Slow speeds. Natural granite friction. Unburned volatile oils. Purity you can smell before you taste."
-                </h2>
-              </Reveal>
-              <Reveal delay={200}>
-                <p className="body-text max-w-xl">
-                  Single-origin Kasargod turmeric, stone-pounded Kashmiri chilli, Tellicherry black pepper, and artisanal home bakes delivered directly from verified Kerala home chefs.
-                </p>
-              </Reveal>
+        {/* ── 2. BRAND STATEMENT (Sticky Container for Popup Scrubbing) ──────────────────────────────── */}
+        <section className="relative w-full" style={{ height: '320vh' }} id="philosophy-section">
+          <div className="sticky top-0 w-full h-[100svh] flex flex-col justify-center py-24 md:py-32 border-b border-[#DDD7CA] bg-[#F5F1E8]">
+            <div className="container-editorial">
+              <div className="max-w-3xl">
+                <Reveal>
+                  <span className="label text-[#68645B]">The Ammikallu Philosophy</span>
+                </Reveal>
+                <Reveal delay={100}>
+                  <h2
+                    id="brand-statement"
+                    className="display-lg text-[#171714] mt-6 mb-8"
+                  >
+                    "Slow speeds. Natural granite friction. Unburned volatile oils. Purity you can smell before you taste."
+                  </h2>
+                </Reveal>
+                <Reveal delay={200}>
+                  <p className="body-text max-w-xl">
+                    Single-origin Kasargod turmeric, stone-pounded Kashmiri chilli, Tellicherry black pepper, and artisanal home bakes delivered directly from verified Kerala home chefs.
+                  </p>
+                </Reveal>
+              </div>
             </div>
           </div>
         </section>
