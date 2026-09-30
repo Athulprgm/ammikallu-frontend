@@ -226,21 +226,30 @@ export default function CustomerHome() {
   /* Scroll-triggered popup and product scrubbing */
   useEffect(() => {
     const onScroll = () => {
-      const scrollY = window.scrollY;
-      const vh = window.innerHeight;
+      const section = document.getElementById('philosophy-section');
+      if (!section) return;
 
-      // Show popup between 230vh and 450vh (over the sticky Philosophy section)
-      if (scrollY > vh * 2.3 && scrollY <= vh * 4.5) {
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+      
+      // Calculate progress through the section (0 = top reached, 1 = bottom reached)
+      const scrollableDistance = rect.height - vh;
+      if (scrollableDistance <= 0) return;
+      
+      const scrollProgress = -rect.top / scrollableDistance;
+
+      // Show popup between 10% and 95% of the section's scroll
+      if (scrollProgress > 0.1 && scrollProgress <= 0.95) {
         if (!popupMinimized) {
           setShowScrollPopup(true);
           
-          // Scrub products based on scroll progress (0 to 1) over the 2.2vh scrub window
-          const progress = (scrollY - (vh * 2.3)) / (vh * 2.2);
+          // Scrub products based on scroll progress over the active window
+          const scrubProgress = (scrollProgress - 0.1) / 0.85;
           
           let targetIndex = 0;
-          if (progress > 0.33 && progress <= 0.66) {
+          if (scrubProgress > 0.33 && scrubProgress <= 0.66) {
             targetIndex = 1;
-          } else if (progress > 0.66) {
+          } else if (scrubProgress > 0.66) {
             targetIndex = 2;
           }
           
@@ -255,7 +264,9 @@ export default function CustomerHome() {
         setShowScrollPopup(false);
       }
     };
+    
     window.addEventListener('scroll', onScroll, { passive: true });
+    // Initial check
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, [popupMinimized, flagshipProducts]);
@@ -379,7 +390,7 @@ export default function CustomerHome() {
                   </div>
                 )}
                 {/* Flagship Card: Unified White Canvas with Luxury Ambient Depth */}
-                <div className="relative bg-white rounded-2xl md:rounded-3xl border border-[#E5E1D8] shadow-[0_20px_50px_-15px_rgba(23,23,20,0.06)] overflow-hidden p-6 md:p-10 transition-all duration-500 hover:shadow-[0_25px_60px_-15px_rgba(23,23,20,0.1)]">
+                <div className="relative bg-white rounded-2xl md:rounded-[32px] border-none shadow-[0_24px_60px_-15px_rgba(0,0,0,0.06)] overflow-hidden p-8 md:p-12 transition-all duration-500 hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)]">
 
                   {/* Subtle luxury ambient glow */}
                   <div
@@ -432,10 +443,10 @@ export default function CustomerHome() {
                     </div>
 
                     {/* Right Column: Minimal Flagship Tech/Luxury Typography */}
-                    <div className="md:col-span-7 flex flex-col justify-between space-y-4">
+                    <div className="md:col-span-7 flex flex-col justify-center space-y-6 md:pl-6">
 
                       {/* Live Status & Quick Switch */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between pb-2 border-b border-black/5">
                         {nextProduct ? (
                           <button
                             type="button"
@@ -443,14 +454,14 @@ export default function CustomerHome() {
                               setSelectedProductId(nextProduct.id);
                               setFeaturedWeightIdx(1);
                             }}
-                            className="text-[11px] font-mono text-[#68645B] hover:text-[#171714] flex items-center gap-1 transition-colors cursor-pointer"
+                            className="text-[12px] font-mono text-[#68645B] hover:text-[#171714] flex items-center gap-2 transition-colors cursor-pointer"
                           >
                             <span>Next: {nextProduct.id === 'prod-mulaku-podi' ? 'Mulaku Podi' : nextProduct.id === 'prod-kurumulaku-podi' ? 'Kurumulaku Podi' : 'Manjal Podi'}</span>
-                            <ArrowRight className="w-3 h-3" />
+                            <ArrowRight className="w-3.5 h-3.5" />
                           </button>
                         ) : <div />}
 
-                        <span className="text-[11px] font-mono text-[#46513A] font-medium flex items-center gap-1.5">
+                        <span className="text-[12px] font-mono text-[#46513A] font-medium flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#46513A]" />
                           In Stock • Fresh Batch
                         </span>
@@ -458,31 +469,36 @@ export default function CustomerHome() {
 
                       {/* Headline */}
                       <div>
-                        <h2 id="featured-heading" className="text-xl md:text-2xl font-serif text-[#171714] tracking-tight leading-tight font-medium">
-                          {featuredProduct.name}
+                        <h2 id="featured-heading" className="text-3xl md:text-[40px] font-serif text-[#171714] tracking-tight leading-[1.1] font-medium">
+                          {featuredProduct.name.split('(')[0].trim()}
+                          {featuredProduct.name.includes('(') && (
+                            <span className="block text-2xl md:text-[34px] text-[#171714] mt-1.5 opacity-90">
+                              ({featuredProduct.name.split('(')[1]}
+                            </span>
+                          )}
                         </h2>
-                        <p className="text-xs text-[#68645B] mt-1 font-serif italic">
+                        <p className="text-sm text-[#68645B] mt-3 font-serif italic">
                           {isChilli
                             ? 'കാസർഗോഡൻ തനത് മുളകുപൊടി • Cold Stone-Ground'
-                            : 'കാസർഗോഡൻ തനത് മഞ്ഞൾപ്പൊടി • Cold Stone-Ground'}
+                            : isKurumulaku ? 'കാസർഗോഡൻ തനത് കുരുമുളകുപൊടി • Cold Stone-Ground' : 'കാസർഗോഡൻ തനത് മഞ്ഞൾപ്പൊടി • Cold Stone-Ground'}
                         </p>
                       </div>
 
                       {/* Brief description */}
-                      <p className="text-xs text-[#524E46] leading-relaxed line-clamp-2">
+                      <p className="text-sm md:text-[15px] text-[#524E46] leading-relaxed">
                         {featuredProduct.shortDescription || featuredProduct.description?.slice(0, 140)}
                       </p>
 
                       {/* Apple-style Segmented Size Selector */}
-                      <div className="pt-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[11px] font-mono text-[#68645B] uppercase tracking-wider">
+                      <div className="pt-2">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-[11px] font-mono text-[#68645B] uppercase tracking-[0.15em] font-semibold">
                             Select Size
                           </span>
                         </div>
 
                         {/* Pill track */}
-                        <div className="bg-[#F5F2EB] p-1 rounded-full flex gap-1.5 items-center">
+                        <div className="bg-[#F5F2EB] p-1.5 rounded-full flex gap-1 items-center">
                           {featuredWeightOptions.map((wOpt, idx) => {
                             const isSelected = featuredWeightIdx === idx;
                             return (
@@ -490,15 +506,15 @@ export default function CustomerHome() {
                                 key={wOpt.weight}
                                 type="button"
                                 onClick={() => setFeaturedWeightIdx(idx)}
-                                className={`flex-1 py-1.5 px-2 rounded-full text-center transition-all duration-300 relative cursor-pointer ${isSelected
-                                  ? 'bg-[#171714] text-white shadow-sm scale-[1.02]'
+                                className={`flex-1 py-3 px-2 rounded-full text-center transition-all duration-300 relative cursor-pointer ${isSelected
+                                  ? 'bg-[#171714] text-white shadow-md scale-[1.02]'
                                   : 'text-[#68645B] hover:text-[#171714] hover:bg-white/60'
                                   }`}
                                 aria-label={`Select ${wOpt.weight} pack`}
                               >
-                                <div className="font-mono text-xs font-semibold leading-tight">{wOpt.weight}</div>
-                                <div className={`text-[10px] ${isSelected
-                                  ? (isChilli ? 'text-[#E0533C]' : 'text-[#C99518]')
+                                <div className="font-mono text-[13px] font-bold leading-tight">{wOpt.weight}</div>
+                                <div className={`text-[11px] font-medium mt-1 ${isSelected
+                                  ? 'text-[#C99518]'
                                   : 'text-[#8C887E]'
                                   }`}>
                                   ₹{wOpt.salePrice || wOpt.price}
@@ -510,34 +526,34 @@ export default function CustomerHome() {
                       </div>
 
                       {/* Price & Primary CTA */}
-                      <div className="pt-4 flex items-center justify-between gap-4 border-t border-[#EBE7DF]">
-                        <div className="flex items-baseline gap-2">
-                          <span key={featuredCurrentPrice} className="font-serif text-3xl text-[#171714] anim-price-flip tracking-tight">
+                      <div className="pt-6 flex items-center justify-between gap-4 border-t border-black/5 mt-4">
+                        <div className="flex items-baseline gap-2.5">
+                          <span key={featuredCurrentPrice} className="font-serif text-[42px] text-[#171714] anim-price-flip tracking-tight leading-none">
                             ₹{featuredCurrentPrice}
                           </span>
                           {featuredOriginalPrice && featuredOriginalPrice > featuredCurrentPrice && (
-                            <span className="text-xs text-[#8C887E] line-through font-mono">
+                            <span className="text-lg text-[#8C887E] line-through font-serif opacity-70">
                               ₹{featuredOriginalPrice}
                             </span>
                           )}
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                           <button
                             onClick={() => addToCart(featuredProduct, 1, activeFeaturedOpt.weight, featuredCurrentPrice)}
-                            className="bg-[#171714] hover:bg-[#A63D2F] text-white px-5 py-2.5 rounded-full text-xs font-medium tracking-wide flex items-center gap-2 transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                            className="bg-[#171714] hover:bg-[#A63D2F] text-white px-7 py-3.5 rounded-[16px] text-sm font-semibold tracking-wide flex items-center gap-2.5 transition-all duration-300 cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(166,61,47,0.3)] hover:-translate-y-1"
                             id="featured-add-cart-btn"
                           >
-                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <ShoppingBag className="w-4 h-4" />
                             <span>Add to Bag</span>
                           </button>
 
                           <button
                             onClick={() => openProductDetail(featuredProduct)}
-                            className="text-xs text-[#171714] hover:text-[#A63D2F] font-medium transition-colors cursor-pointer py-2 px-1 flex items-center gap-1 group"
+                            className="text-[13px] text-[#171714] hover:text-[#A63D2F] font-semibold transition-colors cursor-pointer py-2 flex items-center gap-1.5 group"
                           >
                             <span>Explore</span>
-                            <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                           </button>
                         </div>
                       </div>
