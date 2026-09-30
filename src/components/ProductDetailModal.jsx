@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import {
   X,
@@ -36,15 +36,49 @@ export default function ProductDetailModal() {
   const [reviewerName, setReviewerName] = useState('');
   const [selectedWeightIndex, setSelectedWeightIndex] = useState(0);
 
-  // Prevent background scrolling when modal is open
+  const scrollRef = useRef(null);
+
+  // Lock background scroll and trap wheel events inside modal
   useEffect(() => {
-    if (isProductModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+    if (!isProductModalOpen) return;
+
+    // Save scroll position to prevent jump
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.overflow = 'hidden';
+
+    // Wheel trap: stop all wheel events from reaching the background
+    const trapWheel = (e) => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const atTop = scrollTop === 0 && e.deltaY < 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight && e.deltaY > 0;
+      if (atTop || atBottom) {
+        e.preventDefault();
+      }
+      e.stopPropagation();
+    };
+
+    const modalEl = scrollRef.current;
+    if (modalEl) {
+      modalEl.addEventListener('wheel', trapWheel, { passive: false });
     }
+
     return () => {
-      document.body.style.overflow = 'unset';
+      const sy = parseInt(document.body.style.top || '0') * -1;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, sy);
+      if (modalEl) {
+        modalEl.removeEventListener('wheel', trapWheel);
+      }
     };
   }, [isProductModalOpen]);
 
@@ -83,8 +117,7 @@ export default function ProductDetailModal() {
 
   return (
     <div 
-      className="fixed inset-0 z-[1000] bg-[#171714]/40 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 md:p-8 animate-fade-in overscroll-contain" 
-      style={{ overscrollBehavior: 'contain' }}
+      className="fixed inset-0 z-[1000] bg-[#171714]/40 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 md:p-8 animate-fade-in" 
       onClick={() => setIsProductModalOpen(false)}
     >
       <div 
@@ -155,7 +188,7 @@ export default function ProductDetailModal() {
       </div>
 
       {/* Right Column: Scrollable Content */}
-      <div className="flex-1 md:flex-none md:w-[55%] h-full overflow-y-auto bg-white relative hide-scrollbar overscroll-contain" style={{ overscrollBehavior: 'contain' }}>
+      <div ref={scrollRef} className="flex-1 w-full h-full overflow-y-auto bg-white relative">
         <div className="p-6 md:p-10 lg:p-12 xl:p-14 space-y-12">
           
           {/* Header Section */}
