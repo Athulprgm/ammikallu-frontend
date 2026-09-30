@@ -201,73 +201,64 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Left-bottom content block (Sequence 1) */}
-        <div className="absolute inset-0 flex items-end pointer-events-none z-20">
-          <div className="container-editorial pb-16 md:pb-20 w-full max-w-[760px]">
+        {/* Sequence 1: Centered Text perfectly matching Seq 2 & 3 */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          
+          <div 
+            className="text-center px-4 relative"
+            style={{ opacity: titleOp, transform: `translateY(${titleY}px)` }}
+          >
+            {/* Eyebrow (Matching Seq 2 & 3) */}
+            <span className="label text-white/60 mb-4 block tracking-[0.2em]">ROOTED IN KERALA</span>
 
-            {/* Eyebrow */}
-            <div
-              className="mb-6 pointer-events-none"
-              style={{ opacity: titleOp, transform: `translateY(${titleY * 0.6}px)` }}
-            >
-              <span className="label text-white/60">Rooted in Kerala</span>
-            </div>
-
-            {/* Headline */}
-            <h1
-              className="display-xl text-white mb-6 will-transform pointer-events-none drop-shadow-lg"
-              style={{ opacity: titleOp, transform: `translateY(${titleY}px)` }}
-            >
+            {/* Headline (Matching Seq 2 & 3) */}
+            <h1 className="display-lg text-white font-serif max-w-2xl mx-auto leading-tight drop-shadow-2xl">
               The Taste<br />of Real Kerala.
             </h1>
 
-            {/* Description */}
-            <p
-              className="body-text text-white/70 mb-8 max-w-md pointer-events-none"
-              style={{ opacity: descOp, transform: `translateY(${descY}px)` }}
+            {/* Description and CTAs - Positioned absolutely below so they don't push the headline up */}
+            <div 
+              className="absolute top-full left-1/2 -translate-x-1/2 mt-6 md:mt-8 w-[92vw] sm:w-[500px] md:w-[600px]"
+              style={{ opacity: descOp }}
             >
-              Authentic spices, carefully sourced and crafted for the modern kitchen.
-            </p>
+              <p className="body-text text-white/70 mb-6 md:mb-8 max-w-sm md:max-w-md mx-auto px-2">
+                Authentic spices, carefully sourced and crafted for the modern kitchen.
+              </p>
 
-            {/* CTAs */}
-            <div
-              className="flex items-center gap-4 flex-wrap pointer-events-auto"
-              style={{ opacity: ctaOp, transform: `translateY(${ctaY}px)` }}
-            >
-              <button
-                onClick={() => navigateToShop()}
-                className="btn-primary"
-                id="hero-explore-btn"
-              >
-                Explore Collection
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              <button
-                onClick={() => { setCurrentView('home'); setTimeout(() => document.getElementById('kerala-story')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-                className="btn-ghost"
-                id="hero-story-btn"
-              >
-                Our Story
-              </button>
-            </div>
-
-            {/* Scroll indicator */}
-            <div
-              className="mt-12 flex items-center gap-3 pointer-events-none"
-              style={{ opacity: scrollOp }}
-            >
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-[1px] h-8 bg-white/40 relative overflow-hidden">
-                  <div
-                    className="absolute top-0 left-0 w-full bg-white/80 transition-all duration-100"
-                    style={{ height: `${Math.min(100, progress * 400)}%` }}
-                  />
-                </div>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pointer-events-auto">
+                <button
+                  onClick={() => navigateToShop()}
+                  className="btn-primary w-full sm:w-auto flex justify-center"
+                  id="hero-explore-btn"
+                >
+                  Explore Collection
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="ml-2 shrink-0">
+                    <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => { setCurrentView('home'); setTimeout(() => document.getElementById('kerala-story')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                  className="btn-ghost w-full sm:w-auto flex justify-center"
+                  id="hero-story-btn"
+                >
+                  Our Story
+                </button>
               </div>
-              <span className="label text-[10px] text-white/50">Scroll to explore</span>
             </div>
+          </div>
+
+          {/* Scroll indicator - Pushed to bottom absolutely */}
+          <div
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 pointer-events-none"
+            style={{ opacity: scrollOp }}
+          >
+            <div className="w-[1px] h-12 bg-white/40 relative overflow-hidden">
+              <div
+                className="absolute top-0 left-0 w-full bg-white/80 transition-all duration-100"
+                style={{ height: `${Math.min(100, progress * 400)}%` }}
+              />
+            </div>
+            <span className="label text-[10px] text-white/50">Scroll to explore</span>
           </div>
         </div>
 

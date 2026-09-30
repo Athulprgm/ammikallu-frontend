@@ -240,6 +240,45 @@ export const PRODUCTS_SEED = [
       { weight: '1 Kg', price: 920, salePrice: 800, image: '/kurumulaku podi/1kg.png' }
     ],
     purityNotes: ['100% Tellicherry Garbled', 'Stone-Pounded', 'Zero Papaya Seeds', 'High Piperine']
+  },
+  {
+    id: 'prod-spices-combo',
+    name: 'Heritage Spices Combo Pack (സ്പൈസസ് കോംബോ)',
+    slug: 'kasargod-heritage-spices-combo',
+    sellerId: 'seller-spices',
+    categoryId: 'curry-powder',
+    price: 590,
+    salePrice: 499,
+    rating: 4.99,
+    reviewsCount: 342,
+    weight: '500g',
+    unit: 'Combo Pack',
+    preparationTime: 'Cold Stone Ground',
+    shelfLife: '12 Months',
+    heatLevel: 'Balanced',
+    stoneGround: true,
+    sunDried: true,
+    batchNo: 'KSG-CMB-2609',
+    grindDate: 'Sep 2026 Small Batch',
+    ingredients: 'Manjal Podi, Mulaku Podi, Kurumulaku Podi',
+    allergenInformation: '100% Vegan & Gluten-Free.',
+    isVegetarian: true,
+    isAvailable: true,
+    status: 'approved',
+    featured: true,
+    image: '/products-combo/combo-500g.png',
+    gallery: [
+      '/products-combo/combo-500g.png',
+      '/products-combo/combo-p-1kg.png'
+    ],
+    description: 'The ultimate Kerala Heritage spices combo featuring our single-origin turmeric, kashmiri chilli, and tellicherry black pepper. Hand-picked, sun-dried, and stone-pounded on Ammikkallu.',
+    shortDescription: 'The ultimate premium spices combo featuring turmeric, chilli, and black pepper.',
+    stock: 120,
+    weightOptions: [
+      { weight: '500g', price: 590, salePrice: 499, image: '/products-combo/combo-500g.png' },
+      { weight: '1 Kg', price: 1100, salePrice: 949, image: '/products-combo/combo-p-1kg.png' }
+    ],
+    purityNotes: ['Stone-Pounded', 'Zero Fillers', 'Sun-Dried', 'Combo Pack']
   }
 ];
 

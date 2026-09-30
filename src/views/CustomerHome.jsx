@@ -204,6 +204,7 @@ export default function CustomerHome() {
 
   const isChilli = featuredProduct?.id === 'prod-mulaku-podi';
   const isKurumulaku = featuredProduct?.id === 'prod-kurumulaku-podi';
+  const isCombo = featuredProduct?.id === 'prod-spices-combo';
 
   const featuredIdx = flagshipProducts.findIndex(p => p.id === featuredProduct?.id);
   const prevProduct = flagshipProducts[(featuredIdx - 1 + flagshipProducts.length) % flagshipProducts.length];
@@ -212,6 +213,7 @@ export default function CustomerHome() {
   const getPopupImage = () => {
     if (featuredProduct?.id === 'prod-mulaku-podi') return "/mulaku-podi/select product-mulakupodi.png";
     if (featuredProduct?.id === 'prod-manjal-podi') return "/manjal podi/select product-manjalpodi.png";
+    if (featuredProduct?.id === 'prod-spices-combo') return "/products-combo/combo-500g.png";
     return "/kurumulaku podi/250g.png";
   };
 
@@ -344,13 +346,13 @@ export default function CustomerHome() {
 
         {/* ── 3. FEATURED PRODUCT (Apple/Nike Ultra-Minimalist Flagship Showcase) ───────────── */}
         {featuredProduct && (
-          <section className="py-12 md:py-16 border-b border-[#DDD7CA]" aria-labelledby="featured-heading">
-            <div className="container-editorial">
-              <div className="max-w-4xl mx-auto">
+          <section className="py-0 border-b border-[#DDD7CA]" aria-labelledby="featured-heading">
+            <div className="w-full">
+              <div className="w-full h-full flex flex-col">
 
                 {/* Apple-style Segmented Product Selector */}
                 {flagshipProducts.length > 1 && (
-                  <div className="w-full overflow-x-auto hide-scrollbar pb-2 mb-4 -mx-4 px-4 md:mx-0 md:px-0">
+                  <div className="w-full overflow-x-auto hide-scrollbar pt-8 pb-4 bg-white">
                     <div className="flex items-center md:justify-center w-max md:w-auto mx-auto">
                       <div className="bg-[#EBE7DF]/80 backdrop-blur-sm p-1 rounded-full flex gap-1 shadow-inner border border-black/5">
                         {flagshipProducts.map((prod) => {
@@ -363,6 +365,9 @@ export default function CustomerHome() {
                           } else if (prod.id === 'prod-kurumulaku-podi') {
                             prodName = 'Kurumulaku Podi';
                             prodColor = 'bg-[#3A3831]';
+                          } else if (prod.id === 'prod-spices-combo') {
+                            prodName = 'Combo Pack';
+                            prodColor = 'bg-[#46513A]'; // distinct color
                           }
 
                           return (
@@ -371,7 +376,7 @@ export default function CustomerHome() {
                               type="button"
                               onClick={() => {
                                 setSelectedProductId(prod.id);
-                                setFeaturedWeightIdx(3); // Default to 1 Kg
+                                setFeaturedWeightIdx(Math.min(3, prod.weightOptions.length - 1)); // Default to highest or 1 Kg
                               }}
                               className={`flex items-center gap-2 px-5 py-2 rounded-full text-[13px] font-medium tracking-tight transition-all duration-300 cursor-pointer ${isSelected
                                 ? 'bg-white text-[#171714] shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/5'
@@ -389,116 +394,68 @@ export default function CustomerHome() {
                     </div>
                   </div>
                 )}
-                {/* Flagship Card: Unified White Canvas with Luxury Ambient Depth */}
-                <div className="relative bg-white rounded-2xl md:rounded-[32px] border-none shadow-[0_24px_60px_-15px_rgba(0,0,0,0.06)] overflow-hidden p-6 sm:p-8 md:p-12 transition-all duration-500 hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)]">
+                {/* Flagship Card: Edge-to-Edge Redesign */}
+                <div className="relative bg-white border-none rounded-none overflow-hidden py-4 px-4 md:py-6 md:px-12 group/flagship flex flex-col justify-center">
 
-                  {/* Subtle luxury ambient glow */}
+                  {/* Ultra-minimal ambient glow (subtle) */}
                   <div
-                    className={`absolute -top-24 -left-24 w-72 h-72 rounded-full bg-radial ${isChilli ? 'from-[#A63D2F]/10' : isKurumulaku ? 'from-[#3A3831]/8' : 'from-[#C99518]/8'
-                      } via-transparent to-transparent pointer-events-none transition-colors duration-700`}
-                  />
-                  <div
-                    className={`absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-radial ${isChilli ? 'from-[#C99518]/6' : isKurumulaku ? 'from-[#3A3831]/5' : 'from-[#A63D2F]/5'
-                      } via-transparent to-transparent pointer-events-none transition-colors duration-700`}
+                    className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-radial ${isChilli ? 'from-[#A63D2F]/5' : isKurumulaku ? 'from-[#3A3831]/4' : 'from-[#C99518]/5'
+                      } via-transparent to-transparent opacity-0 group-hover/flagship:opacity-100 transition-opacity duration-1000 pointer-events-none translate-x-1/3 -translate-y-1/3`}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center">
 
-                    {/* Left Column: Pure Product Hero (Floating on White Stage with Distortion FX) */}
+                    {/* Left Column: Pure Product Hero */}
                     <div className="md:col-span-5 flex flex-col items-center justify-center relative">
-
-                      {/* SVG Fluid Turbulence Distortion Filter */}
-                      <svg className="absolute w-0 h-0 pointer-events-none opacity-0" aria-hidden="true">
-                        <defs>
-                          <filter id="packWarpDistort" x="-20%" y="-20%" width="140%" height="140%">
-                            <feTurbulence type="fractalNoise" baseFrequency="0.06 0.12" numOctaves="2" result="warpNoise" />
-                            <feDisplacementMap in="SourceGraphic" in2="warpNoise" scale="22" xChannelSelector="R" yChannelSelector="G" />
-                          </filter>
-                        </defs>
-                      </svg>
-
                       <div
-                        className="relative flex flex-col items-center justify-center cursor-pointer group py-4"
+                        className="relative flex flex-col items-center justify-center cursor-pointer group py-2 md:py-4"
                         onClick={() => openProductDetail(featuredProduct)}
                         title="Click to view full product details"
                       >
-                        {/* Product Pouch with 90fps cinematic slow smooth float */}
-                        <div className="relative transform transition-transform duration-700 ease-out group-hover:-translate-y-1.5 overflow-hidden">
+                        {/* Minimalist Floating Image */}
+                        <div className="relative transform transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05] group-hover:-translate-y-2">
                           <img
                             key={featuredImg}
                             src={featuredImg}
                             alt={`${featuredProduct.name} - ${activeFeaturedOpt.weight}`}
-                            className="max-h-[230px] md:max-h-[270px] w-auto max-w-full object-contain anim-pack-switch"
+                            className="max-h-[160px] md:max-h-[220px] w-auto max-w-full object-contain anim-pack-switch drop-shadow-2xl"
                             style={{ mixBlendMode: 'multiply' }}
                             loading="lazy"
-                          />
-
-                          {/* Silky Glass Specular Light Sweep */}
-                          <div
-                            key={`flare-${featuredImg}`}
-                            className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent anim-flash-sweep"
                           />
                         </div>
                       </div>
                     </div>
 
-                    {/* Right Column: Minimal Flagship Tech/Luxury Typography */}
-                    <div className="md:col-span-7 flex flex-col justify-center space-y-6 md:pl-6">
+                    {/* Right Column: Creative Minimal Typography */}
+                    <div className="md:col-span-7 flex flex-col justify-center space-y-4 md:space-y-6 md:pl-8">
 
-                      {/* Live Status & Quick Switch */}
-                      <div className="flex items-center justify-between pb-2 border-b border-black/5">
-                        {nextProduct ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedProductId(nextProduct.id);
-                              setFeaturedWeightIdx(3); // Default to 1 Kg
-                            }}
-                            className="text-[12px] font-mono text-[#68645B] hover:text-[#171714] flex items-center gap-2 transition-colors cursor-pointer"
-                          >
-                            <span>Next: {nextProduct.id === 'prod-mulaku-podi' ? 'Mulaku Podi' : nextProduct.id === 'prod-kurumulaku-podi' ? 'Kurumulaku Podi' : 'Manjal Podi'}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
-                        ) : <div />}
-
-                        <span className="text-[12px] font-mono text-[#46513A] font-medium flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#46513A]" />
-                          In Stock • Fresh Batch
-                        </span>
-                      </div>
-
-                      {/* Headline */}
-                      <div>
-                        <h2 id="featured-heading" className="text-3xl md:text-[40px] font-serif text-[#171714] tracking-tight leading-[1.1] font-medium">
+                      {/* Headline Area */}
+                      <div className="relative">
+                        <h2 id="featured-heading" className="text-3xl md:text-[42px] font-serif text-[#171714] tracking-tight leading-[1.05]">
                           {featuredProduct.name.split('(')[0].trim()}
-                          {featuredProduct.name.includes('(') && (
-                            <span className="block text-2xl md:text-[34px] text-[#171714] mt-1.5 opacity-90">
-                              ({featuredProduct.name.split('(')[1]}
-                            </span>
-                          )}
                         </h2>
-                        <p className="text-sm text-[#68645B] mt-3 font-serif italic">
-                          {isChilli
-                            ? 'കാസർഗോഡൻ തനത് മുളകുപൊടി • Cold Stone-Ground'
-                            : isKurumulaku ? 'കാസർഗോഡൻ തനത് കുരുമുളകുപൊടി • Cold Stone-Ground' : 'കാസർഗോഡൻ തനത് മഞ്ഞൾപ്പൊടി • Cold Stone-Ground'}
+                        {featuredProduct.name.includes('(') && (
+                          <span className="block text-lg md:text-2xl text-[#171714]/30 font-serif mt-1 italic tracking-wide">
+                            {featuredProduct.name.split('(')[1].replace(')', '')}
+                          </span>
+                        )}
+                        <p className="text-[11px] uppercase tracking-[0.15em] text-[#A63D2F] font-semibold mt-2">
+                          {isCombo 
+                            ? 'Cold Stone-Ground • Kerala Heritage'
+                            : isChilli
+                              ? 'Cold Stone-Ground • Kasargod'
+                              : isKurumulaku ? 'Cold Stone-Ground • Tellicherry' : 'Cold Stone-Ground • Alleppey'}
                         </p>
                       </div>
 
-                      {/* Brief description */}
-                      <p className="text-sm md:text-[15px] text-[#524E46] leading-relaxed">
-                        {featuredProduct.shortDescription || featuredProduct.description?.slice(0, 140)}
+                      {/* Description */}
+                      <p className="text-[13px] md:text-[14px] text-[#524E46] leading-relaxed max-w-lg hidden sm:block">
+                        {featuredProduct.shortDescription || featuredProduct.description?.slice(0, 100)}
                       </p>
 
-                      {/* Apple-style Segmented Size Selector */}
-                      <div className="pt-2">
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-[11px] font-mono text-[#68645B] uppercase tracking-[0.15em] font-semibold">
-                            Select Size
-                          </span>
-                        </div>
-
-                        {/* Pill track */}
-                        <div className="bg-[#F5F2EB] p-1.5 rounded-full flex gap-1 items-center">
+                      {/* Minimal Segmented Size Selector */}
+                      <div className="pt-1">
+                        <div className="flex flex-wrap items-center gap-2">
                           {featuredWeightOptions.map((wOpt, idx) => {
                             const isSelected = featuredWeightIdx === idx;
                             return (
@@ -506,58 +463,46 @@ export default function CustomerHome() {
                                 key={wOpt.weight}
                                 type="button"
                                 onClick={() => setFeaturedWeightIdx(idx)}
-                                className={`flex-1 py-3 px-2 rounded-full text-center transition-all duration-300 relative cursor-pointer ${isSelected
-                                  ? 'bg-[#171714] text-white shadow-md scale-[1.02]'
-                                  : 'text-[#68645B] hover:text-[#171714] hover:bg-white/60'
+                                className={`py-1.5 px-4 rounded-full text-center transition-all duration-500 cursor-pointer border ${isSelected
+                                  ? 'border-[#171714] bg-[#171714] text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)] scale-[1.02]'
+                                  : 'border-black/10 bg-transparent text-[#68645B] hover:border-black/30 hover:text-black'
                                   }`}
                                 aria-label={`Select ${wOpt.weight} pack`}
                               >
-                                <div className="font-mono text-[13px] font-bold leading-tight">{wOpt.weight}</div>
-                                <div className={`text-[11px] font-medium mt-1 ${isSelected
-                                  ? 'text-[#C99518]'
-                                  : 'text-[#8C887E]'
-                                  }`}>
-                                  ₹{wOpt.salePrice || wOpt.price}
-                                </div>
+                                <span className="font-mono text-[11px] font-bold tracking-tight">{wOpt.weight}</span>
                               </button>
                             );
                           })}
                         </div>
                       </div>
 
-                      {/* Price & Primary CTA */}
-                      <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-t border-black/5 mt-4">
-                        <div className="flex items-baseline gap-2.5">
-                          <span key={featuredCurrentPrice} className="font-serif text-[40px] md:text-[42px] text-[#171714] anim-price-flip tracking-tight leading-none">
-                            ₹{featuredCurrentPrice}
-                          </span>
-                          {featuredOriginalPrice && featuredOriginalPrice > featuredCurrentPrice && (
-                            <span className="text-lg text-[#8C887E] line-through font-serif opacity-70">
-                              ₹{featuredOriginalPrice}
+                      {/* Price & Action (Creative alignment) */}
+                      <div className="pt-3 mt-1 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-t border-black/5">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] text-black/40 uppercase tracking-[0.2em] font-bold mb-1">Total</span>
+                          <div className="flex items-baseline gap-2">
+                            <span key={featuredCurrentPrice} className="font-serif text-[36px] md:text-[42px] text-[#171714] anim-price-flip leading-none tracking-tighter">
+                              ₹{featuredCurrentPrice}
                             </span>
-                          )}
+                            {featuredOriginalPrice && featuredOriginalPrice > featuredCurrentPrice && (
+                              <span className="text-sm text-black/30 line-through font-serif italic">
+                                ₹{featuredOriginalPrice}
+                              </span>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
                           <button
                             onClick={() => addToCart(featuredProduct, 1, activeFeaturedOpt.weight, featuredCurrentPrice)}
-                            className="flex-1 sm:flex-none bg-[#171714] hover:bg-[#A63D2F] text-white px-5 sm:px-7 py-3.5 rounded-[16px] text-sm font-semibold tracking-wide flex items-center justify-center gap-2.5 transition-all duration-300 cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(166,61,47,0.3)] hover:-translate-y-1"
+                            className="flex-1 sm:flex-none bg-[#171714] text-white px-6 py-2.5 rounded-full text-[11px] uppercase tracking-wider font-bold transition-all duration-500 cursor-pointer hover:bg-[#A63D2F] hover:shadow-[0_8px_16px_rgba(166,61,47,0.3)] hover:-translate-y-0.5 group/add flex items-center justify-center gap-2"
                             id="featured-add-cart-btn"
                           >
-                            <ShoppingBag className="w-4 h-4" />
                             <span className="whitespace-nowrap">Add to Bag</span>
-                          </button>
-
-                          <button
-                            onClick={() => openProductDetail(featuredProduct)}
-                            className="text-[13px] text-[#171714] hover:text-[#A63D2F] font-semibold transition-colors cursor-pointer py-2 flex items-center justify-center gap-1.5 group shrink-0"
-                          >
-                            <span>Explore</span>
-                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                            <ShoppingBag className="w-3.5 h-3.5 transition-transform group-hover/add:scale-110" />
                           </button>
                         </div>
                       </div>
-
                     </div>
 
                   </div>
