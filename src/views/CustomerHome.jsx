@@ -339,10 +339,11 @@ export default function CustomerHome() {
 
                 {/* Apple-style Segmented Product Selector */}
                 {flagshipProducts.length > 1 && (
-                  <div className="flex items-center justify-center mb-6">
-                    <div className="bg-[#EBE7DF] p-1 rounded-full flex gap-1 shadow-xs border border-[#DDD7CA]">
-                      {flagshipProducts.map((prod) => {
-                        const isSelected = featuredProduct.id === prod.id;
+                  <div className="w-full overflow-x-auto hide-scrollbar pb-2 mb-4 -mx-4 px-4 md:mx-0 md:px-0">
+                    <div className="flex items-center md:justify-center w-max md:w-auto mx-auto">
+                      <div className="bg-[#EBE7DF] p-1 rounded-full flex gap-1 shadow-xs border border-[#DDD7CA]">
+                        {flagshipProducts.map((prod) => {
+                          const isSelected = featuredProduct.id === prod.id;
                         let prodName = 'Manjal Podi (മഞ്ഞൾപ്പൊടി)';
                         let prodColor = 'bg-[#C99518]';
                         if (prod.id === 'prod-mulaku-podi') {
@@ -375,10 +376,10 @@ export default function CustomerHome() {
                           </button>
                         );
                       })}
+                      </div>
                     </div>
                   </div>
                 )}
-
                 {/* Flagship Card: Unified White Canvas with Luxury Ambient Depth */}
                 <div className="relative bg-white rounded-2xl md:rounded-3xl border border-[#E5E1D8] shadow-[0_20px_50px_-15px_rgba(23,23,20,0.06)] overflow-hidden p-6 md:p-10 transition-all duration-500 hover:shadow-[0_25px_60px_-15px_rgba(23,23,20,0.1)]">
 
@@ -983,43 +984,7 @@ export default function CustomerHome() {
             />
           </div>
 
-          {/* Close Button */}
-          <button
-            onClick={() => setPopupMinimized(true)}
-            className="absolute top-6 right-6 md:top-10 md:right-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/40 border border-white/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-300 z-50 cursor-pointer shadow-sm"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
 
-          {/* Navigation Arrows */}
-          {flagshipProducts.length > 1 && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedProductId(prevProduct?.id);
-                  setFeaturedWeightIdx(1);
-                }}
-                className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/40 bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 cursor-pointer hover:scale-105"
-                aria-label="Previous Product"
-              >
-                <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" strokeWidth={1} />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedProductId(nextProduct?.id);
-                  setFeaturedWeightIdx(1);
-                }}
-                className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/40 bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 cursor-pointer hover:scale-105"
-                aria-label="Next Product"
-              >
-                <ChevronRight className="w-6 h-6 md:w-8 md:h-8" strokeWidth={1} />
-              </button>
-            </>
-          )}
 
         </div>
       )}
