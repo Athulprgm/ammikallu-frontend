@@ -341,41 +341,39 @@ export default function CustomerHome() {
                 {flagshipProducts.length > 1 && (
                   <div className="w-full overflow-x-auto hide-scrollbar pb-2 mb-4 -mx-4 px-4 md:mx-0 md:px-0">
                     <div className="flex items-center md:justify-center w-max md:w-auto mx-auto">
-                      <div className="bg-[#EBE7DF] p-1 rounded-full flex gap-1 shadow-xs border border-[#DDD7CA]">
+                      <div className="bg-[#EBE7DF]/80 backdrop-blur-sm p-1 rounded-full flex gap-1 shadow-inner border border-black/5">
                         {flagshipProducts.map((prod) => {
                           const isSelected = featuredProduct.id === prod.id;
-                        let prodName = 'Manjal Podi (മഞ്ഞൾപ്പൊടി)';
-                        let prodColor = 'bg-[#C99518]';
-                        if (prod.id === 'prod-mulaku-podi') {
-                          prodName = 'Mulaku Podi (മുളകുപൊടി)';
-                          prodColor = 'bg-[#A63D2F]';
-                        } else if (prod.id === 'prod-kurumulaku-podi') {
-                          prodName = 'Kurumulaku Podi (കുരുമുളകുപൊടി)';
-                          prodColor = 'bg-[#3A3831]';
-                        }
+                          let prodName = 'Manjal Podi';
+                          let prodColor = 'bg-[#C99518]';
+                          if (prod.id === 'prod-mulaku-podi') {
+                            prodName = 'Mulaku Podi';
+                            prodColor = 'bg-[#A63D2F]';
+                          } else if (prod.id === 'prod-kurumulaku-podi') {
+                            prodName = 'Kurumulaku Podi';
+                            prodColor = 'bg-[#3A3831]';
+                          }
 
-                        return (
-                          <button
-                            key={prod.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedProductId(prod.id);
-                              setFeaturedWeightIdx(1); // Default to 250g
-                            }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer ${isSelected
-                              ? 'bg-[#171714] text-white shadow-xs'
-                              : 'text-[#68645B] hover:text-[#171714] hover:bg-white/60'
-                              }`}
-                          >
-                            <span
-                              className={`w-2 h-2 rounded-full ${prodColor}`}
-                            />
-                            <span className="font-serif">
-                              {prodName}
-                            </span>
-                          </button>
-                        );
-                      })}
+                          return (
+                            <button
+                              key={prod.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedProductId(prod.id);
+                                setFeaturedWeightIdx(1); // Default to 250g
+                              }}
+                              className={`flex items-center gap-2 px-5 py-2 rounded-full text-[13px] font-medium tracking-tight transition-all duration-300 cursor-pointer ${isSelected
+                                ? 'bg-white text-[#171714] shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/5'
+                                : 'text-[#68645B] hover:text-[#171714] hover:bg-black/5'
+                                }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${prodColor}`}
+                              />
+                              <span>{prodName}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
