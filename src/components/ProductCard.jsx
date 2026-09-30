@@ -8,7 +8,11 @@ export default function ProductCard({ product, size = 'default' }) {
   const seller = sellers.find(s => s.id === product.sellerId);
 
   const weightOptions = product.weightOptions || [{ weight: product.weight, price: product.price, salePrice: product.salePrice }];
-  const [selIdx, setSelIdx] = useState(Math.max(0, weightOptions.findIndex(w => w.weight === product.weight)));
+  const [selIdx, setSelIdx] = useState(() => {
+    const oneKgIdx = weightOptions.findIndex(w => w.weight.toLowerCase() === '1 kg' || w.weight.toLowerCase() === '1kg');
+    if (oneKgIdx !== -1) return oneKgIdx;
+    return Math.max(0, weightOptions.findIndex(w => w.weight === product.weight));
+  });
   const opt = weightOptions[selIdx] || weightOptions[0];
   const price = opt.salePrice || opt.price;
   const orig  = opt.price;
@@ -29,22 +33,21 @@ export default function ProductCard({ product, size = 'default' }) {
       onKeyDown={e => e.key === 'Enter' && openProductDetail(product)}
       aria-label={`View ${product.name}`}
     >
-      {/* Ultra-Premium Image Stage (Apple Style) */}
       <div
         className={`relative w-full flex items-center justify-center bg-transparent overflow-visible mb-6 transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-[0.92] ${
           isLarge ? 'aspect-[3/4]' : 'aspect-square'
         }`}
       >
-        <img
-          key={opt.image || product.image}
-          src={opt.image || product.image}
-          alt={`${product.name} - ${opt.weight}`}
-          loading="lazy"
-          decoding="async"
-          className="max-h-[85%] w-auto max-w-full object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-[1.5] group-hover:-translate-y-14 group-hover:drop-shadow-[0_30px_40px_rgba(0,0,0,0.3)] relative z-10 group-hover:z-50"
-          style={{ mixBlendMode: 'multiply' }}
-        />
-
+        <div key={opt.image || product.image} className="anim-pack-switch relative z-10 group-hover:z-50 w-full h-full flex items-center justify-center">
+          <img
+            src={opt.image || product.image}
+            alt={`${product.name} - ${opt.weight}`}
+            loading="lazy"
+            decoding="async"
+            className="max-h-[85%] w-auto max-w-full object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-[1.5] group-hover:-translate-y-14 group-hover:drop-shadow-[0_30px_40px_rgba(0,0,0,0.3)]"
+            style={{ mixBlendMode: 'multiply' }}
+          />
+        </div>
       </div>
 
       {/* Info Section (Flat, Borderless Typography) */}
@@ -83,14 +86,20 @@ export default function ProductCard({ product, size = 'default' }) {
                   <button
                     key={i}
                     onClick={e => { e.stopPropagation(); setSelIdx(i); }}
-                    className={`py-1.5 px-3.5 rounded-full text-center transition-all duration-300 cursor-pointer border ${
+                    className={`relative overflow-hidden py-1.5 px-3.5 rounded-full text-center transition-all duration-500 cursor-pointer border ${
                       isSelected
-                        ? 'bg-[#171714] border-[#171714] text-white shadow-[0_4px_10px_rgba(0,0,0,0.1)]'
-                        : 'bg-transparent border-[#DDD7CA] text-[#68645B] hover:border-[#171714] hover:text-[#171714]'
+                        ? 'border-[#171714] text-white shadow-[0_8px_16px_rgba(0,0,0,0.12)] scale-[1.04]'
+                        : 'bg-transparent border-[#DDD7CA] text-[#68645B] hover:border-[#171714] hover:text-[#171714] hover:scale-[1.02]'
                     }`}
                     title={`Switch to ${o.weight} pack`}
                   >
-                    <span className="font-mono text-[11px] font-bold tracking-wider">{o.weight}</span>
+                    <div 
+                      className={`absolute inset-0 bg-[#171714] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        isSelected ? 'translate-y-0' : 'translate-y-[102%]'
+                      }`}
+                      style={{ zIndex: 0 }}
+                    />
+                    <span className="font-mono text-[11px] font-bold tracking-wider relative z-10">{o.weight}</span>
                   </button>
                 );
               })}

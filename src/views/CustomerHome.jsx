@@ -189,7 +189,7 @@ export default function CustomerHome() {
   const [activeIngredient, setActiveIngredient] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [selectedProductId, setSelectedProductId] = useState('prod-mulaku-podi');
-  const [featuredWeightIdx, setFeaturedWeightIdx] = useState(1); // Default to 250g
+  const [featuredWeightIdx, setFeaturedWeightIdx] = useState(3); // Default to 1 Kg (usually index 3)
   const ingredientRef = useRef(null);
 
   const approvedProducts = products.filter(p => p.status === 'approved');
@@ -371,7 +371,7 @@ export default function CustomerHome() {
                               type="button"
                               onClick={() => {
                                 setSelectedProductId(prod.id);
-                                setFeaturedWeightIdx(1); // Default to 250g
+                                setFeaturedWeightIdx(3); // Default to 1 Kg
                               }}
                               className={`flex items-center gap-2 px-5 py-2 rounded-full text-[13px] font-medium tracking-tight transition-all duration-300 cursor-pointer ${isSelected
                                 ? 'bg-white text-[#171714] shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/5'
@@ -390,7 +390,7 @@ export default function CustomerHome() {
                   </div>
                 )}
                 {/* Flagship Card: Unified White Canvas with Luxury Ambient Depth */}
-                <div className="relative bg-white rounded-2xl md:rounded-[32px] border-none shadow-[0_24px_60px_-15px_rgba(0,0,0,0.06)] overflow-hidden p-8 md:p-12 transition-all duration-500 hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)]">
+                <div className="relative bg-white rounded-2xl md:rounded-[32px] border-none shadow-[0_24px_60px_-15px_rgba(0,0,0,0.06)] overflow-hidden p-6 sm:p-8 md:p-12 transition-all duration-500 hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)]">
 
                   {/* Subtle luxury ambient glow */}
                   <div
@@ -452,7 +452,7 @@ export default function CustomerHome() {
                             type="button"
                             onClick={() => {
                               setSelectedProductId(nextProduct.id);
-                              setFeaturedWeightIdx(1);
+                              setFeaturedWeightIdx(3); // Default to 1 Kg
                             }}
                             className="text-[12px] font-mono text-[#68645B] hover:text-[#171714] flex items-center gap-2 transition-colors cursor-pointer"
                           >
@@ -526,9 +526,9 @@ export default function CustomerHome() {
                       </div>
 
                       {/* Price & Primary CTA */}
-                      <div className="pt-6 flex items-center justify-between gap-4 border-t border-black/5 mt-4">
+                      <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-t border-black/5 mt-4">
                         <div className="flex items-baseline gap-2.5">
-                          <span key={featuredCurrentPrice} className="font-serif text-[42px] text-[#171714] anim-price-flip tracking-tight leading-none">
+                          <span key={featuredCurrentPrice} className="font-serif text-[40px] md:text-[42px] text-[#171714] anim-price-flip tracking-tight leading-none">
                             ₹{featuredCurrentPrice}
                           </span>
                           {featuredOriginalPrice && featuredOriginalPrice > featuredCurrentPrice && (
@@ -538,19 +538,19 @@ export default function CustomerHome() {
                           )}
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                           <button
                             onClick={() => addToCart(featuredProduct, 1, activeFeaturedOpt.weight, featuredCurrentPrice)}
-                            className="bg-[#171714] hover:bg-[#A63D2F] text-white px-7 py-3.5 rounded-[16px] text-sm font-semibold tracking-wide flex items-center gap-2.5 transition-all duration-300 cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(166,61,47,0.3)] hover:-translate-y-1"
+                            className="flex-1 sm:flex-none bg-[#171714] hover:bg-[#A63D2F] text-white px-5 sm:px-7 py-3.5 rounded-[16px] text-sm font-semibold tracking-wide flex items-center justify-center gap-2.5 transition-all duration-300 cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(166,61,47,0.3)] hover:-translate-y-1"
                             id="featured-add-cart-btn"
                           >
                             <ShoppingBag className="w-4 h-4" />
-                            <span>Add to Bag</span>
+                            <span className="whitespace-nowrap">Add to Bag</span>
                           </button>
 
                           <button
                             onClick={() => openProductDetail(featuredProduct)}
-                            className="text-[13px] text-[#171714] hover:text-[#A63D2F] font-semibold transition-colors cursor-pointer py-2 flex items-center gap-1.5 group"
+                            className="text-[13px] text-[#171714] hover:text-[#A63D2F] font-semibold transition-colors cursor-pointer py-2 flex items-center justify-center gap-1.5 group shrink-0"
                           >
                             <span>Explore</span>
                             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -730,12 +730,12 @@ export default function CustomerHome() {
                 </div>
 
                 {/* Ingredient tab selector */}
-                <div className="flex items-center gap-6 mt-8">
+                <div className="flex items-center gap-5 md:gap-6 mt-8 overflow-x-auto hide-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
                   {INGREDIENTS.map((ing, i) => (
                     <button
                       key={ing.name}
                       onClick={() => setActiveIngredient(i)}
-                      className={`label text-[10px] cursor-pointer transition-all duration-300 ${i === activeIngredient ? 'text-white' : 'text-white/30 hover:text-white/60'
+                      className={`label text-[10px] cursor-pointer transition-all duration-300 whitespace-nowrap ${i === activeIngredient ? 'text-white' : 'text-white/30 hover:text-white/60'
                         }`}
                     >
                       {ing.name}

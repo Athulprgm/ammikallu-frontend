@@ -68,7 +68,7 @@ export default function TwoFactorCard({ onSwitchTab, onLoginSuccess, showToast }
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 6 Digit PIN Boxes */}
-        <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-3 w-full">
           {code.map((digit, idx) => (
             <input
               key={idx}
@@ -79,7 +79,7 @@ export default function TwoFactorCard({ onSwitchTab, onLoginSuccess, showToast }
               value={digit}
               onChange={(e) => handleChange(idx, e.target.value)}
               onKeyDown={(e) => handleKeyDown(idx, e)}
-              className="w-10 h-12 sm:w-12 sm:h-14 text-center font-bold text-lg sm:text-xl rounded-xl glass-input text-espresso-900 focus:scale-105 transition-all shadow-sm"
+              className="w-9 h-11 sm:w-12 sm:h-14 flex-1 max-w-[3rem] text-center font-bold text-base sm:text-xl rounded-xl glass-input text-espresso-900 focus:scale-105 transition-all shadow-sm"
             />
           ))}
         </div>
