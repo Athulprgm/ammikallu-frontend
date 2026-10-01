@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import LoadingScreen from './components/LoadingScreen';
+import AuthScreen from './views/AuthScreen';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProductDetailModal from './components/ProductDetailModal';
@@ -11,12 +12,10 @@ import Toast from './components/Toast';
 // Views
 import CustomerHome from './views/CustomerHome';
 import ShopPage from './views/ShopPage';
-import SellerStorefront from './views/SellerStorefront';
 import UserAccountView from './views/UserAccountView';
-import SellerPortal from './views/SellerPortal';
 import AdminConsole from './views/AdminConsole';
 
-// Session flag so the intro animation only plays once per browser session (Bug #4)
+// Session flag so the intro animation only plays once per browser session
 const INTRO_KEY = 'ammikallu.introSeen';
 const hasSeenIntro = () => {
   try {
@@ -27,8 +26,18 @@ const hasSeenIntro = () => {
 };
 
 function MainAppContent() {
-  const { currentView, currentRole, toast, setToast } = useApp();
+  const { session, isAdmin, currentView, toast, setToast } = useApp();
   const [showLoading, setShowLoading] = useState(() => !hasSeenIntro());
+
+  // Auth gate — not signed in: show the Flipkart-style login screen only.
+  if (!session) {
+    return (
+      <>
+        <Toast toast={toast} onClose={() => setToast(null)} />
+        <AuthScreen />
+      </>
+    );
+  }
 
   if (showLoading) {
     return (
@@ -45,31 +54,32 @@ function MainAppContent() {
     );
   }
 
+  // ── Admin session ──────────────────────────────────────────────────────────
+  if (isAdmin) {
+    return (
+      <div className="min-h-screen bg-[#F5F1E8] text-[#171714] relative selection:bg-[#A63D2F] selection:text-[#F5F1E8]">
+        <div className="grain-overlay" aria-hidden="true" />
+        <Toast toast={toast} onClose={() => setToast(null)} />
+        <main>
+          <AdminConsole />
+        </main>
+      </div>
+    );
+  }
+
+  // ── User (customer) session ────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#F5F1E8] text-[#171714] flex flex-col justify-between relative selection:bg-[#A63D2F] selection:text-[#F5F1E8]">
-
       {/* Grain texture overlay */}
       <div className="grain-overlay" aria-hidden="true" />
 
-
-      {/* Toast */}
       <Toast toast={toast} onClose={() => setToast(null)} />
-
-      {/* Navbar */}
       <Navbar />
 
-      {/* Main content */}
       <main className="flex-1">
-        {currentRole === 'customer' && (
-          <>
-            {currentView === 'home' && <CustomerHome />}
-            {currentView === 'shop' && <ShopPage />}
-            {currentView === 'seller-store' && <SellerStorefront />}
-            {currentView === 'account' && <UserAccountView />}
-          </>
-        )}
-        {currentRole === 'seller' && <SellerPortal />}
-        {currentRole === 'admin' && <AdminConsole />}
+        {currentView === 'home' && <CustomerHome />}
+        {currentView === 'shop' && <ShopPage />}
+        {currentView === 'account' && <UserAccountView />}
       </main>
 
       {/* Modals */}
@@ -77,7 +87,6 @@ function MainAppContent() {
       <CartDrawer />
       <CheckoutModal />
 
-      {/* Footer */}
       <Footer />
     </div>
   );

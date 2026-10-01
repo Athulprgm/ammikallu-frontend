@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import usePersistedState from '../hooks/usePersistedState';
 import {
   CATEGORIES_SEED,
-  SELLERS_SEED,
   PRODUCTS_SEED,
   INITIAL_REVIEWS,
   INITIAL_ORDERS,
@@ -12,15 +11,55 @@ import {
 
 const AppContext = createContext();
 
+// ── Auth: exactly ONE admin + normal users (no multi-tenant). ────────────────
+// Admin is a single fixed account; users self-register (mock, localStorage).
+const ADMIN_EMAIL = 'admin@ammikallu.com';
+const ADMIN_PASSWORD = 'admin123';
+
+const USERS_KEY = 'ammikallu.users';
+const SESSION_KEY = 'ammikallu.session';
+
+function readStoredUsers() {
+  try {
+    const raw = window.localStorage.getItem(USERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function readStoredSession() {
+  try {
+    const raw = window.localStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeSession(session) {
+  try {
+    if (session) {
+      window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    } else {
+      window.localStorage.removeItem(SESSION_KEY);
+    }
+  } catch {
+    /* storage unavailable — session stays in-memory only */
+  }
+}
+
 export function AppProvider({ children }) {
-  // Navigation & Role State
-  const [currentRole, setCurrentRole] = useState('customer'); // 'customer' | 'seller' | 'admin'
-  const [currentSellerId, setCurrentSellerId] = useState('seller-spices'); // Default seller for seller portal
-  const [currentView, setCurrentView] = useState('home'); // 'home' | 'shop' | 'seller-store' | 'account' | 'seller-dashboard' | 'admin-dashboard'
-  
+  // ── Auth State (persisted) ─────────────────────────────────────────────────
+  // session: null | { role: 'user' | 'admin', name, email }
+  const [session, setSession] = useState(() => readStoredSession());
+
+  // ── Navigation State ───────────────────────────────────────────────────────
+  const [currentView, setCurrentView] = useState('home'); // user views: 'home' | 'shop' | 'account'
+  const [accountTab, setAccountTab] = useState('orders'); // 'orders' | 'wishlist' | 'addresses' | 'reviews' | 'profile'
+
   // Selection State
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [selectedSellerId, setSelectedSellerId] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -28,16 +67,15 @@ export function AppProvider({ children }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [accountTab, setAccountTab] = useState('orders'); // 'orders' | 'wishlist' | 'addresses' | 'reviews' | 'profile'
 
-  // Platform Entities State
-  const [products, setProducts] = useState(PRODUCTS_SEED);
-  const [sellers, setSellers] = useState(SELLERS_SEED);
-  const [categories, setCategories] = useState(CATEGORIES_SEED);
+  // Platform Entities State (catalog is managed by the single Admin)
+  const [products, setProducts] = usePersistedState('ammikallu.products', PRODUCTS_SEED);
+  const [sellers] = useState([]); // legacy display data; single-admin store has no seller accounts
+  const [categories, setCategories] = usePersistedState('ammikallu.categories', CATEGORIES_SEED);
   const [reviews, setReviews] = useState(INITIAL_REVIEWS);
   const [coupons] = useState(INITIAL_COUPONS);
 
-  // Persisted State — survives a page refresh (Bug #6)
+  // Persisted State — survives a page refresh
   const [orders, setOrders] = usePersistedState('ammikallu.orders', INITIAL_ORDERS);
   const [addresses, setAddresses] = usePersistedState('ammikallu.addresses', INITIAL_ADDRESSES);
 
@@ -65,22 +103,68 @@ export function AppProvider({ children }) {
     ]);
   };
 
-  // Role Fast Switcher
-  const switchRole = (role) => {
-    setCurrentRole(role);
-    if (role === 'customer') {
-      setCurrentView('home');
-      showToast('Switched to Customer Storefront mode', 'info');
-    } else if (role === 'seller') {
-      setCurrentView('seller-dashboard');
-      showToast('Switched to Seller Portal (Kasargod Heritage Spices)', 'info');
-    } else if (role === 'admin') {
-      setCurrentView('admin-dashboard');
-      showToast('Switched to Admin Platform Console mode', 'info');
+  // ── Auth Handlers ──────────────────────────────────────────────────────────
+  const login = (email, password) => {
+    const trimmed = (email || '').trim().toLowerCase();
+
+    // Single fixed admin account
+    if (trimmed === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      const adminSession = { role: 'admin', name: 'Admin', email: ADMIN_EMAIL };
+      setSession(adminSession);
+      writeSession(adminSession);
+      showToast('Signed in as Admin', 'success');
+      return true;
     }
+
+    const users = readStoredUsers();
+    const user = users.find(u => u.email === trimmed && u.password === password);
+    if (!user) {
+      showToast('Invalid email or password', 'error');
+      return false;
+    }
+    const userSession = { role: 'user', name: user.name, email: user.email };
+    setSession(userSession);
+    writeSession(userSession);
+    showToast(`Welcome back, ${user.name}!`, 'success');
+    return true;
   };
 
-  // Cart Handlers
+  const signup = (name, email, password) => {
+    const trimmed = (email || '').trim().toLowerCase();
+    if (!name || !trimmed || !password) {
+      showToast('Please fill all fields', 'error');
+      return false;
+    }
+    if (trimmed === ADMIN_EMAIL) {
+      showToast('This email is reserved', 'error');
+      return false;
+    }
+    const users = readStoredUsers();
+    if (users.some(u => u.email === trimmed)) {
+      showToast('An account with this email already exists', 'error');
+      return false;
+    }
+    users.push({ name, email: trimmed, password });
+    try {
+      window.localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    } catch {
+      /* storage unavailable */
+    }
+    const userSession = { role: 'user', name, email: trimmed };
+    setSession(userSession);
+    writeSession(userSession);
+    showToast(`Account created. Welcome, ${name}!`, 'success');
+    return true;
+  };
+
+  const logout = () => {
+    setSession(null);
+    writeSession(null);
+    setCurrentView('home');
+    showToast('Signed out', 'info');
+  };
+
+  // ── Cart Handlers ──────────────────────────────────────────────────────────
   const addToCart = (product, quantityToAdd = 1, selectedWeight = null, customPrice = null) => {
     if (!product.isAvailable || product.stock <= 0) {
       showToast('Product is currently out of stock', 'error');
@@ -91,7 +175,7 @@ export function AppProvider({ children }) {
     const cartItemId = `${product.id}-${weight}`;
 
     // Match an existing line using current state BEFORE the updater runs,
-    // so validation (and its toast) stays out of the state updater (Bug #2).
+    // so validation (and its toast) stays out of the state updater.
     const matches = (item) =>
       item.cartItemId === cartItemId ||
       (!item.cartItemId && item.productId === product.id && item.selectedWeight === weight);
@@ -134,7 +218,7 @@ export function AppProvider({ children }) {
     );
     if (!item) return;
 
-    // Stock validation happens before the updater, so no toast inside it (Bug #2).
+    // Stock validation happens before the updater, so no toast inside it.
     if (item.quantity + delta > item.product.stock) {
       showToast(`Only ${item.product.stock} units in stock`, 'warning');
       return;
@@ -176,30 +260,17 @@ export function AppProvider({ children }) {
     return true;
   };
 
-  // Wishlist Toggle
+  // Wishlist Toggle — toast outside the updater (pure updaters only)
   const toggleWishlist = (productId) => {
-    setWishlist(prev => {
-      const exists = prev.includes(productId);
-      if (exists) {
-        showToast('Removed from wishlist', 'info');
-        return prev.filter(id => id !== productId);
-      } else {
-        showToast('Added to wishlist!', 'success');
-        return [...prev, productId];
-      }
-    });
+    const exists = wishlist.includes(productId);
+    setWishlist(prev => (exists ? prev.filter(id => id !== productId) : [...prev, productId]));
+    showToast(exists ? 'Removed from wishlist' : 'Added to wishlist!', exists ? 'info' : 'success');
   };
 
   // View Navigation Helpers
   const navigateToShop = (categoryId = null) => {
     setSelectedCategoryId(categoryId);
     setCurrentView('shop');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const navigateToSellerStore = (sellerId) => {
-    setSelectedSellerId(sellerId);
-    setCurrentView('seller-store');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -229,17 +300,15 @@ export function AppProvider({ children }) {
         productId: item.productId,
         productName: item.product.name,
         selectedWeight: item.selectedWeight || item.product.weight,
-        sellerId: item.product.sellerId,
-        sellerName: sellers.find(s => s.id === item.product.sellerId)?.name || 'Home Maker',
         price: item.price,
         quantity: item.quantity,
         image: item.product.image
       })),
       timeline: [
         { status: 'pending', title: 'Order Placed', time: 'Just now', completed: true, active: true },
-        { status: 'confirmed', title: 'Awaiting Seller Confirmation', time: 'Pending', completed: false },
+        { status: 'confirmed', title: 'Order Confirmed', time: 'Pending', completed: false },
         { status: 'processing', title: 'Preparing Fresh in Kitchen', time: 'Pending', completed: false },
-        { status: 'ready', title: 'Packed & Ready for Pickup', time: 'Pending', completed: false },
+        { status: 'packed', title: 'Packed & Ready', time: 'Pending', completed: false },
         { status: 'shipped', title: 'Dispatched with Courier', time: 'Pending', completed: false },
         { status: 'delivered', title: 'Delivered Home', time: 'Pending', completed: false }
       ]
@@ -249,21 +318,21 @@ export function AppProvider({ children }) {
     clearCart();
     setIsCheckoutOpen(false);
     showToast(`Order ${newOrderId} placed successfully!`, 'success');
-    addNotification('Order Placed!', `Your order #${newOrderId} has been sent to home creators.`);
-    
+    addNotification('Order Placed!', `Your order #${newOrderId} has been placed.`);
+
     // Auto switch to customer account orders tab
     setAccountTab('orders');
     setCurrentView('account');
   };
 
-  // Seller Action: Update Order Status
-  const updateSellerOrderStatus = (orderId, newStatus) => {
-    setOrders(prevOrders => {
-      return prevOrders.map(ord => {
+  // ── Admin: Order Management ────────────────────────────────────────────────
+  const updateOrderStatus = (orderId, newStatus) => {
+    setOrders(prevOrders =>
+      prevOrders.map(ord => {
         if (ord.id === orderId) {
-          const statusOrder = ['pending', 'confirmed', 'processing', 'ready', 'shipped', 'delivered'];
+          const statusOrder = ['pending', 'confirmed', 'processing', 'packed', 'shipped', 'delivered'];
           const currentIndex = statusOrder.indexOf(newStatus);
-          
+
           const updatedTimeline = ord.timeline.map((step, idx) => {
             if (idx < currentIndex) {
               return { ...step, completed: true, active: false };
@@ -281,61 +350,58 @@ export function AppProvider({ children }) {
           };
         }
         return ord;
-      });
-    });
+      })
+    );
     showToast(`Order ${orderId} status updated to ${newStatus.toUpperCase()}`, 'success');
     addNotification(`Order ${orderId} Updated`, `Status changed to ${newStatus}`);
   };
 
-  // Seller Action: Product CRUD
-  const saveSellerProduct = (productData) => {
+  const deleteOrder = (orderId) => {
+    setOrders(prev => prev.filter(o => o.id !== orderId));
+    showToast(`Order ${orderId} removed`, 'info');
+  };
+
+  // ── Admin: Product CRUD ────────────────────────────────────────────────────
+  const saveProduct = (productData) => {
     if (productData.id) {
       // Edit existing
-      setProducts(prev => prev.map(p => p.id === productData.id ? { ...p, ...productData } : p));
+      setProducts(prev => prev.map(p => (p.id === productData.id ? { ...p, ...productData } : p)));
       showToast('Product updated successfully!', 'success');
-    } else {
-      // Add new
-      const newProd = {
-        ...productData,
-        id: 'prod-' + Date.now(),
-        slug: productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        rating: 5.0,
-        reviewsCount: 0,
-        status: 'pending', // Requires admin approval!
-        featured: false
-      };
-      setProducts(prev => [newProd, ...prev]);
-      showToast('Product created! Submitted for Admin approval.', 'success');
-      addNotification('New Product Submission', `Product "${newProd.name}" submitted for approval.`);
+      return true;
     }
+    // Add new
+    const newProd = {
+      slug: productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      rating: 5.0,
+      reviewsCount: 0,
+      isAvailable: true,
+      isVegetarian: true,
+      featured: false,
+      ...productData,
+      id: 'prod-' + Date.now()
+    };
+    setProducts(prev => [newProd, ...prev]);
+    showToast('Product added successfully!', 'success');
+    return true;
   };
 
   const deleteProduct = (productId) => {
     setProducts(prev => prev.filter(p => p.id !== productId));
-    showToast('Product deleted from inventory', 'info');
+    showToast('Product deleted', 'info');
   };
 
-  // Admin Actions
-  const approveProduct = (productId) => {
-    setProducts(prev => prev.map(p => p.id === productId ? { ...p, status: 'approved' } : p));
-    showToast('Product approved for public marketplace listing!', 'success');
+  const toggleProductFeatured = (productId) => {
+    setProducts(prev => prev.map(p => (p.id === productId ? { ...p, featured: !p.featured } : p)));
   };
 
-  const rejectProduct = (productId) => {
-    setProducts(prev => prev.map(p => p.id === productId ? { ...p, status: 'rejected' } : p));
-    showToast('Product rejected', 'warning');
+  const toggleProductAvailable = (productId) => {
+    setProducts(prev =>
+      prev.map(p => (p.id === productId ? { ...p, isAvailable: !p.isAvailable } : p))
+    );
+    showToast('Availability updated', 'info');
   };
 
-  const approveSeller = (sellerId) => {
-    setSellers(prev => prev.map(s => s.id === sellerId ? { ...s, status: 'approved', verified: true } : s));
-    showToast('Seller application approved!', 'success');
-  };
-
-  const rejectSeller = (sellerId) => {
-    setSellers(prev => prev.map(s => s.id === sellerId ? { ...s, status: 'rejected' } : s));
-    showToast('Seller application rejected', 'warning');
-  };
-
+  // ── Admin: Category CRUD ───────────────────────────────────────────────────
   const addCategory = (categoryData) => {
     const newCat = {
       id: categoryData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -344,6 +410,16 @@ export function AppProvider({ children }) {
     };
     setCategories(prev => [...prev, newCat]);
     showToast(`Category "${newCat.name}" created`, 'success');
+  };
+
+  const updateCategory = (categoryId, categoryData) => {
+    setCategories(prev => prev.map(c => (c.id === categoryId ? { ...c, ...categoryData } : c)));
+    showToast('Category updated', 'success');
+  };
+
+  const deleteCategory = (categoryId) => {
+    setCategories(prev => prev.filter(c => c.id !== categoryId));
+    showToast('Category deleted', 'info');
   };
 
   const addReview = (productId, reviewData) => {
@@ -358,30 +434,37 @@ export function AppProvider({ children }) {
       comment: reviewData.comment
     };
     setReviews(prev => [newRev, ...prev]);
-    
-    // Update product rating average
-    setProducts(prev => prev.map(p => {
-      if (p.id === productId) {
-        const prodRevs = [...reviews.filter(r => r.productId === productId), newRev];
-        const avg = prodRevs.reduce((acc, r) => acc + r.rating, 0) / prodRevs.length;
-        return { ...p, rating: Number(avg.toFixed(1)), reviewsCount: prodRevs.length };
-      }
-      return p;
-    }));
+
+    // Update product rating average (functional updater — no stale closure)
+    setProducts(prev =>
+      prev.map(p => {
+        if (p.id === productId) {
+          const prodRevs = reviews
+            .filter(r => r.productId === productId)
+            .concat(newRev);
+          const avg = prodRevs.reduce((acc, r) => acc + r.rating, 0) / prodRevs.length;
+          return { ...p, rating: Number(avg.toFixed(1)), reviewsCount: prodRevs.length };
+        }
+        return p;
+      })
+    );
 
     showToast('Thank you! Your review has been submitted.', 'success');
   };
 
   const addAddress = (addressData) => {
+    const shouldBeDefault = addresses.length === 0 ? true : addressData.isDefault;
     const newAddr = {
       id: 'addr-' + Date.now(),
       ...addressData,
-      isDefault: addresses.length === 0 ? true : addressData.isDefault
+      isDefault: shouldBeDefault
     };
-    if (newAddr.isDefault) {
-      setAddresses(prev => prev.map(a => ({ ...a, isDefault: false })));
-    }
-    setAddresses(prev => [...prev, newAddr]);
+    // Single atomic update: clear defaults only when the new one is default.
+    setAddresses(prev =>
+      prev
+        .map(a => (shouldBeDefault ? { ...a, isDefault: false } : a))
+        .concat(newAddr)
+    );
     showToast('New delivery address added', 'success');
   };
 
@@ -397,7 +480,7 @@ export function AppProvider({ children }) {
 
   // Computations
   const cartSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
+
   let cartDiscount = 0;
   if (appliedCoupon) {
     if (appliedCoupon.discountPercent) {
@@ -406,31 +489,33 @@ export function AppProvider({ children }) {
       cartDiscount = appliedCoupon.discountAmount;
     }
   }
-  
+
   const deliveryFee = cartSubtotal > 0 ? (cartDiscount >= 40 || cartSubtotal >= 600 ? 0 : 40) : 0;
   const cartTotal = Math.max(0, cartSubtotal - cartDiscount + deliveryFee);
 
   const value = {
-    // Roles & Views
-    currentRole,
-    currentSellerId,
+    // Auth
+    session,
+    user: session, // alias
+    isLoggedIn: !!session,
+    isAdmin: session?.role === 'admin',
+    login,
+    signup,
+    logout,
+
+    // Views
     currentView,
+    setCurrentView,
     accountTab,
+    setAccountTab,
     selectedCategoryId,
-    selectedSellerId,
     selectedProduct,
     searchQuery,
 
     // Setters
-    setCurrentRole,
-    setCurrentSellerId,
-    setCurrentView,
-    setAccountTab,
     setSelectedCategoryId,
-    setSelectedSellerId,
     setSelectedProduct,
     setSearchQuery,
-    switchRole,
 
     // Modal / Drawer States
     isCartOpen,
@@ -468,23 +553,25 @@ export function AppProvider({ children }) {
     applyCouponCode,
     toggleWishlist,
     navigateToShop,
-    navigateToSellerStore,
     openProductDetail,
     placeOrder,
-    updateSellerOrderStatus,
-    saveSellerProduct,
-    deleteProduct,
-    approveProduct,
-    rejectProduct,
-    approveSeller,
-    rejectSeller,
-    addCategory,
     addReview,
     addAddress,
     setDefaultAddress,
     deleteAddress,
     showToast,
-    setToast
+    setToast,
+
+    // Admin handlers
+    updateOrderStatus,
+    deleteOrder,
+    saveProduct,
+    deleteProduct,
+    toggleProductFeatured,
+    toggleProductAvailable,
+    addCategory,
+    updateCategory,
+    deleteCategory
   };
 
   return (

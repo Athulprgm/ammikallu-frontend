@@ -20,13 +20,11 @@ export default function ProductDetailModal() {
     selectedProduct,
     isProductModalOpen,
     setIsProductModalOpen,
-    sellers,
     reviews,
     addToCart,
     toggleWishlist,
     wishlist,
-    addReview,
-    navigateToSellerStore
+    addReview
   } = useApp();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -80,7 +78,6 @@ export default function ProductDetailModal() {
 
   if (!isProductModalOpen || !selectedProduct) return null;
 
-  const seller = sellers.find(s => s.id === selectedProduct.sellerId);
   const productReviews = reviews.filter(r => r.productId === selectedProduct.id);
   const isWishlisted = wishlist.includes(selectedProduct.id);
 
@@ -236,17 +233,10 @@ export default function ProductDetailModal() {
                       ? 'Cold Stone-Ground'
                       : 'Artisanal Blend'}
                   </span>
-                  {seller && (
-                    <>
-                      <span className="text-[#DDD7CA]">·</span>
-                      <button
-                        onClick={() => { setIsProductModalOpen(false); navigateToSellerStore(seller.id); }}
-                        className="label text-[10px] text-[#46513A] hover:text-[#171714] transition-colors cursor-pointer flex items-center gap-1"
-                      >
-                        {seller.name} <CheckCircle2 className="w-3 h-3" />
-                      </button>
-                    </>
-                  )}
+                  <span className="text-[#DDD7CA]">·</span>
+                  <span className="label text-[10px] text-[#46513A] flex items-center gap-1">
+                    Ammikallu Store <CheckCircle2 className="w-3 h-3" />
+                  </span>
                 </div>
 
                 {/* Title */}

@@ -201,7 +201,7 @@ export default function UserAccountView() {
                               <div>
                                 <h5 className="font-serif text-base text-[#171714]">{item.productName}</h5>
                                 <span className="label text-[9px] text-[#68645B] block mt-0.5">
-                                  Kitchen: {item.sellerName}
+                                  {item.selectedWeight}
                                 </span>
                               </div>
                             </div>

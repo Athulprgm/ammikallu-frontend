@@ -3,9 +3,8 @@ import { useApp } from '../context/AppContext';
 import { Heart, Plus } from 'lucide-react';
 
 export default function ProductCard({ product, size = 'default' }) {
-  const { sellers, addToCart, toggleWishlist, wishlist, openProductDetail } = useApp();
+  const { addToCart, toggleWishlist, wishlist, openProductDetail } = useApp();
   const isWishlisted = wishlist.includes(product.id);
-  const seller = sellers.find(s => s.id === product.sellerId);
 
   const weightOptions = product.weightOptions || [{ weight: product.weight, price: product.price, salePrice: product.salePrice }];
   const [selIdx, setSelIdx] = useState(() => {

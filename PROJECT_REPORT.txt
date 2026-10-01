@@ -1,173 +1,213 @@
 ================================================================================
- AMMIKALLU FRONTEND — PROJECT ANALYSIS REPORT
- Generated: 2026-10-01
+  AMMIKALLU FRONTEND — PROJECT ANALYSIS & RECOMMENDATIONS
+  Generated: 2026-10-01   (updated after the first bug-fix pass)
 ================================================================================
 
+1. SNAPSHOT
 --------------------------------------------------------------------------------
-1. PROJECT SNAPSHOT
+Product      : Ammikallu — "The Taste of Real Kerala" marketplace SPA prototype
+               Customer storefront + Seller portal + Admin console, role-switched.
+Stack        : React 18.3 · Vite 5.4 · Tailwind 3.4 · lucide-react · Lenis
+               3 views + 3 dashboards, no router, no backend, no tests.
+Source        : ~6,700 LOC across 40 files (src/components, src/views, src/context,
+               src/hooks, src/data).
+Runtime bundle: 325 KB JS (gzip 90 KB) · 64 KB CSS (gzip 12 KB)
+Public assets : 76 MB total
+Git           : branch main, 18 commits (messages: "fix"/"fixx"), working tree clean.
+Package name  : still "login-screen-e5dac8" (stale — should be ammikallu-frontend)
+
+All data is in-memory seed data (src/data/seedData.js). Nothing talks to a server;
+orders, cart, wishlist, addresses persist only in localStorage.
+
+
+2. ALREADY FIXED (first pass) — for reference
 --------------------------------------------------------------------------------
-What it is : Kerala spice/artisan marketplace frontend prototype
-             (customer storefront + seller portal + admin console in one SPA)
-Stack      : React 18 · Vite 5 · Tailwind 3 · GSAP · Lenis · lucide-react
-Size       : ~6,500 LOC — 17 components, 6 views, 1 context, 1 seed-data file
-Build      : PASS — 438 KB JS (136 KB gzip) · 64 KB CSS · 5.5s
-Routing    : NONE (view state lives in React context as useState)
-Backend    : NONE (all data in-memory seed data)
-Tests/Lint : NONE (scripts: dev, build, preview only)
-Assets     : WARNING — 76 MB in public/
+[x] Toast never auto-dismissed        -> Toast.jsx ref-stable timer, App.jsx onClose
+[x] Side effects inside setState updaters (cart) -> AppContext.jsx pure updaters
+[x] Dead deps (gsap, @studio-freight/lenis) removed -> -113 KB JS
+[x] Loading screen replayed every load -> sessionStorage "ammikallu.introSeen" + Skip
+[x] Modals had no Escape/focus-trap/scroll-lock -> new hooks/useOverlayA11y.js
+[x] Everything lost on refresh         -> new hooks/usePersistedState.js (cart,
+                                          wishlist, orders, addresses, coupon)
 
-What's good:
-  - Clean Tailwind design tokens, consistent brand palette
-  - Zero console.log statements
-  - Zero broken image references (all 17 referenced assets exist)
-  - prefers-reduced-motion handled in CSS
-  - alt text present on every <img>
-  - Sensible stock / coupon / order logic in context
-  - Graceful fallback timer on the loading video
 
+3. BUGS / CORRECTNESS ISSUES (remaining)
 --------------------------------------------------------------------------------
-2. BUGS (FIX FIRST)
+B1. Side effect still inside a state updater — AppContext.jsx, toggleWishlist()
+    --------------------------------------------------------------------------
+    showToast(...) is called INSIDE the setWishlist(prev => { ... }) updater.
+    This is the exact anti-pattern fixed for the cart (Bug #2 in the first pass).
+    React StrictMode double-invokes updaters in dev, and updaters must be pure.
+    -> Compute `exists` from current `wishlist` before calling setWishlist, then
+       show the toast outside — mirror the addToCart pattern.
+
+B2. Inconsistent / duplicated asset folders, one with a space in the name
+    --------------------------------------------------------------------------
+    Both variants of each product folder exist AND are referenced by different
+    code, so they cannot simply be deleted without updating callers:
+      seedData.js         -> '/manjal-podi/…'   and '/mulakupodi/…'
+      CustomerHome.jsx    -> "/manjal podi/select product-manjalpodi.png"
+                             "/mulaku-podi/select product-mulakupodi.png"
+    Folders: manjal podi (9.5M) ≈ manjal-podi (7.6M) · mulakupodi (9.6M) ≈
+    mulaku-podi (9.6M). Note the SPACE inside "manjal podi" / "kurumulaku podi"
+    (URL-encoded to %20 — fragile on deploy/CDN).
+    -> Choose ONE canonical naming scheme (hyphen, no spaces), consolidate the
+       folders, delete the duplicates, and update every reference. Reclaims ~19 MB.
+
+B3. Stale closure in addReview() — AppContext.jsx
+    --------------------------------------------------------------------------
+    The setProducts updater averages ratings using `reviews` captured at render
+    time (before the new review landed), plus `newRev`. It works for one add, but
+    is order-dependent under rapid adds. -> Compute from the functional state or
+    derive ratings in a selector instead of mutating product state.
+
+B4. Coupon not re-validated at checkout
+    --------------------------------------------------------------------------
+    applyCouponCode checks minOrder against the cart, but the cart can change
+    afterwards and the discount is recomputed with the same coupon. -> Re-validate
+    on checkout (or drop the coupon when the cart falls below the minimum).
+
+B5. addAddress() fires two setAddresses calls
+    --------------------------------------------------------------------------
+    One to clear existing defaults, one to append. Two sequential updaters on the
+    same slice — fold into a single functional update for clarity and atomicity.
+
+B6. Hardcoded placeholder identity in placeOrder()
+    --------------------------------------------------------------------------
+    Fallbacks 'Athul Krishna' / '+91 98765 43210' are written into real orders when
+    the form is blank. -> Require the fields (or use an empty-string placeholder).
+
+B7. notifications are not persisted
+    --------------------------------------------------------------------------
+    Orders/wishlist/cart survive refresh but the notification feed resets to the
+    single seeded welcome item. Minor, but inconsistent with the rest.
+
+
+4. PERFORMANCE
 --------------------------------------------------------------------------------
+P1. Hero = 240-frame JPEG sequence (public/bg 15 MB)
+    --------------------------------------------------------------------------
+    HeroSection.jsx builds `/bg/ezgif-frame-001.jpg … -240.jpg` and steps through
+    them. That is up to 240 image requests / decodes for the hero alone.
+    -> Replace with a single muted looping <video> (webm + mp4 fallback), a short
+       sprite sheet, or cap the sequence (~40–60 frames) and compress. Biggest
+       single win for first-load and mobile.
 
-[1] TOASTS NEVER DISAPPEAR
-    App.jsx renders: <Toast toast={toast} onClose={() => {}} />
-    The auto-dismiss timer calls a no-op, and setToast() is only ever called by
-    showToast(). Every toast stays on screen until the next one replaces it.
-    Fix: onClose={() => setToast(null)} and expose setToast from context.
+P2. Oversized raster assets on a runtime path
+    --------------------------------------------------------------------------
+    logo.png       1.8 MB  (also used as <link rel="icon"> — a 1.8 MB favicon!)
+    image copy.png 1.8 MB  (unused)
+    image.png      1.5 MB  (unused)
+    Product PNGs   1.7–2.6 MB each.
+    -> Convert to WebP/AVIF, resize to the max rendered size, and replace the
+       favicon with the (already present but unused) favicon.svg or a small PNG.
 
-[2] TOAST SIDE-EFFECTS INSIDE STATE UPDERS
-    addToCart() and updateCartQuantity() call showToast() INSIDE setCart(prev => ...).
-    React 18 StrictMode double-invokes updater functions → duplicate/racing toasts.
-    Fix: move showToast() calls outside the updater, after the state change.
+P3. Almost no lazy-loading
+    --------------------------------------------------------------------------
+    Only 3 loading="lazy" attributes in the whole app (2 in CustomerHome, 1 in
+    ProductCard). -> Lazy-load all below-the-fold images; give hero frames
+       width/height to avoid layout shift; add decoding="async".
 
-[3] DEAD DEPENDENCY WEIGHT
-    - gsap + ScrollTrigger: imported and registered in CustomerHome.jsx but
-      NEVER used anywhere (scroll work is plain IntersectionObserver + native scroll).
-    - @studio-freight/lenis (deprecated package): installed, but main.jsx imports
-      "lenis" instead — two Lenis packages for one instance.
-    Fix: remove gsap, ScrollTrigger import, and @studio-freight/lenis.
+P4. No code-splitting
+    --------------------------------------------------------------------------
+    All 6 views ship in one 325 KB chunk. -> React.lazy + Suspense per view
+       (SellerPortal/AdminConsole need not load for customers).
 
-[4] LOADING SCREEN BLOCKS EVERYTHING
-    App passes autoStart={true}, but LoadingScreen doesn't accept that prop (dead prop).
-    The gate runs the full video (up to 12s fallback) on EVERY visit, with no skip
-    button and no session flag.
-    Fix: add a "once per session" flag (sessionStorage) + skip button.
+P5. ~19 MB of duplicate folders + ~7 MB of unused images (see 5 below)
 
-[5] MODAL ACCESSIBILITY
-    - No Escape key handler anywhere in modals
-    - No role="dialog" / aria-modal
-    - No focus trap
-    - Only ProductDetailModal locks body scroll; CartDrawer and CheckoutModal
-      let the page scroll behind them.
-    Fix: add Escape + focus trap + consistent scroll lock to all three overlays.
+NOTE: React.lazy and true routing go together — see A1.
 
-[6] NOTHING SURVIVES A REFRESH
-    Cart, wishlist, orders, addresses, coupons — all plain useState.
-    No localStorage usage anywhere in the app.
-    Fix: add a small usePersistedState hook.
 
+5. DEAD CODE & UNUSED ASSETS
 --------------------------------------------------------------------------------
-3. PERFORMANCE ISSUES
+D1. 7 orphaned components (~1,100 LOC) — confirmed NOT imported anywhere:
+      LoginCard.jsx · SignUpCard.jsx · ForgotPasswordCard.jsx · TwoFactorCard.jsx
+      DashboardDemo.jsx · HeroVideoScroll.jsx · SellerCard.jsx
+    -> Delete. (HeroVideoScroll duplicates the hero frame logic of HeroSection.)
+
+D2. Unused files in public/ (~7 MB):
+      image.png (1.5M), image copy.png (1.8M),
+      ammikkallu_granite_craft.jpg (828K), turmeric_ingredient.jpg (904K),
+      kerala_artisan_harvest.jpg (968K), kerala_sun_dried_spices.jpg (1.2M),
+      favicon.svg (unused — index.html points at logo.png).
+    -> Delete or wire up (favicon.svg).
+
+D3. Duplicate product folders (~19 MB) — see B2. These are not dead, just
+    duplicated with inconsistent names; consolidate rather than delete.
+
+
+6. ARCHITECTURE & DEVELOPER EXPERIENCE
 --------------------------------------------------------------------------------
+A1. No routing
+    Current view = string in context. Consequences: no deep links / shareable URLs,
+    browser Back/Forward don't work, refresh always lands on Home, per-route code
+    splitting and SEO are impossible.
+    -> Add react-router-dom with real routes (/ , /shop , /shop/:category ,
+       /seller/:id , /account , /seller , /admin) and React.lazy per route.
 
-| Issue                                              | Impact                        |
-|----------------------------------------------------|-------------------------------|
-| Hero = 240-frame JPEG sequence (public/bg/, 15 MB, | 240 HTTP requests on load;    |
-| 240 requests)                                      | a .webm/.mp4 of the same      |
-|                                                    | animation is ~1–2 MB          |
-| Product images are PNGs of 1.7–2.6 MB each         | 76 MB total in public/;       |
-| (1kg.png, 500g.png, ...)                           | WebP/AVIF would be ~80-95%    |
-|                                                    | smaller                       |
-| favicon points at /logo.png — 1.8 MB favicon       | Loaded by browser on every    |
-|                                                    | page visit                    |
-| Only 3 loading="lazy" attrs in entire app          | All product images decode     |
-|                                                    | eagerly                       |
-| No code-splitting (React.lazy) — all 6 views +     | 438 KB upfront for a          |
-| 5 modals in one bundle                             | landing page                  |
+A2. AppContext.jsx is a "god context" (~503 lines)
+    Mixes navigation, entities (products/sellers/categories/reviews), cart,
+    coupons, orders, notifications, addresses, and admin actions. Every consumer
+    re-renders on any change.
+    -> Split into focused providers/hooks (useCart, useCatalog, useAuth/view,
+       useOrders) or adopt a small store (Zustand). This also fixes the
+       stale-closure risks in B3/B5.
 
+A3. No quality tooling
+    No ESLint, no Prettier, no tests, no CI. -> Add eslint + prettier +
+       vite-plugin-eslint, at least smoke tests, and a CI build check.
+
+A4. Housekeeping
+    package.json name -> "ammikallu-frontend". README is a single line. Commit
+    messages are all "fix" — conventional commits would help.
+    public/robots.txt exists but there is no sitemap.xml.
+
+A5. SEO / PWA gaps in index.html
+    - No <link rel="manifest"> even though public/site.webmanifest exists.
+    - Missing og:image, og:url, og:type, twitter:card, canonical.
+    - <html lang> is set (good) but no theme-color meta.
+    -> Add the manifest link, an og:image (use a compressed hero still), and the
+       twitter card tags.
+
+A6. Accessibility (partly fixed)
+    Modals now trap focus / close on Escape. ProductCard is keyboard-accessible
+    (role=button, tabIndex, Enter). Audit the remaining clickable divs and icon
+    buttons for labels and keyboard reach, and verify color contrast on the
+    gold-on-cream and muted-grey text.
+
+
+7. PRIORITISED ACTION PLAN
 --------------------------------------------------------------------------------
-4. DEAD CODE & ASSET CLEANUP (~25 MB + ~1,100 LOC)
+P0 — correct + non-destructive
+  [ ] B1  Move toggleWishlist toast out of the updater
+  [ ] B3  Fix addReview stale-closure rating math
+  [ ] D1  Delete the 7 orphaned components
+  [ ] A4  Rename package to ammikallu-frontend
+
+P1 — performance / footprint (biggest user-visible wins)
+  [ ] P1  Replace the 240-frame hero with a video or trimmed sequence
+  [ ] B2  Consolidate the duplicate product folders (canonical names, no spaces)
+  [ ] P2  Compress logo.png / product PNGs to WebP; fix the 1.8 MB favicon
+  [ ] D2  Delete the ~7 MB of unused public images
+  [ ] P3  Lazy-load below-the-fold images
+
+P2 — structure / quality
+  [ ] A1  Add react-router + React.lazy per route (P4)
+  [ ] A2  Split AppContext into focused hooks/stores
+  [ ] A3  Add ESLint + Prettier + a test/CI baseline
+  [ ] A5  Manifest link, OG/Twitter image, sitemap.xml
+  [ ] A6  Accessibility sweep of remaining interactive elements
+
+
+8. HEADLINE NUMBERS
 --------------------------------------------------------------------------------
-
-7 COMPONENTS NEVER IMPORTED (orphaned):
-  LoginCard · SignUpCard · ForgotPasswordCard · TwoFactorCard
-  DashboardDemo · HeroVideoScroll · SellerCard
-  (Together they explain why "auth" is just a role switcher — the entire
-   auth UI is disconnected from the app.)
-
-DUPLICATE ASSET FOLDERS (verified byte-identical via md5):
-  - public/mulaku-podi/  ==  public/mulakupodi/       -> 9.6 MB duplicated
-  - public/manjal podi/  vs  public/manjal-podi/      -> ~17 MB near-duplicate
-    (the space in "manjal podi" also risks broken URLs on some hosts)
-  NOTE: seedData.js currently references BOTH variants — pick one naming
-  scheme, update seedData.js, delete the rest.
-
-UNUSED FILES (~6.8 MB):
-  image copy.png (1.8 MB, bad filename)
-  image.png (1.5 MB)
-  ammikkallu_granite_craft.jpg (828 KB)   <- untracked in git
-  kerala_artisan_harvest.jpg (968 KB)     <- untracked in git
-  kerala_sun_dried_spices.jpg (1.2 MB)    <- untracked in git
-  turmeric_ingredient.jpg (904 KB)        <- untracked in git
-  favicon.svg (4 KB)
-  The 4 JPGs are untracked in git and not referenced by any code —
-  either wire them up or remove them.
-
-REPO HYGIENE:
-  - 5 modified files currently uncommitted
-  - Last 5 commit messages are all "fix"
-  - package.json name is still "login-screen-e5dac8"
-  - README.md is a single line ("# ammikallu-frontend")
-
---------------------------------------------------------------------------------
-5. ARCHITECTURE GAPS
---------------------------------------------------------------------------------
-
-- NO ROUTING
-  No deep links, no browser Back support, refresh always returns to home
-  AND replays the loading screen. Adding react-router (with React.lazy per
-  view) fixes routing and bundle size at once.
-
-- NO PERSISTENCE LAYER
-  A small usePersistedState hook would keep cart/orders/wishlist across refreshes.
-
-- GOD CONTEXT
-  AppContext.jsx (484 lines) mixes navigation, cart, orders, admin approvals,
-  toasts and notifications; every change re-renders every consumer.
-  Split into CartProvider / CatalogProvider / UIProvider
-  (or use useReducer + a memoized context value).
-
-- NO LINT / PRETTIER / CI
-  Nothing catches the dead-prop and no-op patterns listed in section 2.
-
-- SEO
-  SPA with no prerender; og:image and <link rel="manifest"> are missing
-  (site.webmanifest exists in public/ but is never linked).
-
---------------------------------------------------------------------------------
-6. SUGGESTED PRIORITY PLAN
---------------------------------------------------------------------------------
-
-P0 — CORRECTNESS (small changes, high value)
-  1. Fix toast dismiss (onClose -> real setter) + move showToast() out of
-     state updaters.
-  2. Remove gsap, ScrollTrigger import and @studio-freight/lenis —
-     instant bundle win.
-  3. Add Escape + focus trap + scroll lock to all three overlays.
-
-P1 — PERFORMANCE (biggest perceived win)
-  4. Compress/convert public/ to WebP/AVIF, delete duplicate + unused assets
-     (target: 76 MB -> under 10 MB).
-  5. Replace the 240-frame hero image sequence with a video, and give the
-     loader a skip button + once-per-session flag.
-  6. Lazy-load views with React.lazy.
-
-P2 — PRODUCT HARDENING
-  7. Add react-router + localStorage persistence.
-  8. Add ESLint + Prettier (and a "lint" script), split AppContext.
-  9. Delete or wire up the 7 orphaned auth/seller components.
- 10. Repo cleanup: commit the pending work, fix package.json name, expand README.
+  public/ footprint         76 MB   ->  ~50 MB after dedup + unused removal
+  hero sequence             15 MB / 240 requests ->  <2 MB video (target)
+  JS bundle                 325 KB (gzip 90 KB) ->  smaller with per-route splitting
+  dead component code        ~1,100 LOC
+  unused images              ~7 MB
+  duplicate folders          ~19 MB
 
 ================================================================================
-END OF REPORT
+  End of report.
 ================================================================================

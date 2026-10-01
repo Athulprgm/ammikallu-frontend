@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Search, ShoppingBag, User, Menu, X, ChevronDown, ShieldCheck, Store } from 'lucide-react';
+import {
+  Search, ShoppingBag, User, Menu, X, ChevronDown, LogOut, Package,
+  Heart, MapPin
+} from 'lucide-react';
 
 const NAV_ITEMS = [
   { label: 'Shop', action: 'shop' },
@@ -11,17 +14,18 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const {
-    currentRole, switchRole, currentView, setCurrentView,
+    session, logout, currentView, setCurrentView, setAccountTab,
     cart, setIsCartOpen, searchQuery, setSearchQuery,
-    navigateToShop, products, openProductDetail, categories,
+    navigateToShop, products, openProductDetail,
   } = useApp();
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
-  const [roleDropOpen, setRoleDropOpen] = useState(false);
+  const [accountDropOpen, setAccountDropOpen] = useState(false);
   const searchRef = useRef(null);
+  const accountRef = useRef(null);
 
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const isHero = currentView === 'home';
@@ -42,6 +46,18 @@ export default function Navbar() {
   useEffect(() => {
     if (searchOpen && searchRef.current) searchRef.current.focus();
   }, [searchOpen]);
+
+  // Close the account dropdown on outside click
+  useEffect(() => {
+    if (!accountDropOpen) return;
+    const onDown = (e) => {
+      if (accountRef.current && !accountRef.current.contains(e.target)) {
+        setAccountDropOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [accountDropOpen]);
 
   const handleNavAction = (action) => {
     setMobileOpen(false);
@@ -65,7 +81,7 @@ export default function Navbar() {
 
           {/* LOGO */}
           <button
-            onClick={() => { setCurrentView('home'); if (currentRole !== 'customer') switchRole('customer'); }}
+            onClick={() => setCurrentView('home')}
             className="flex items-center gap-3 shrink-0 group cursor-pointer"
             aria-label="Ammikallu Home"
           >
@@ -114,77 +130,84 @@ export default function Navbar() {
               <Search className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
 
-            {/* Account */}
-            <button
-              onClick={() => currentRole === 'customer' ? setCurrentView('account') : setCurrentView('seller-dashboard')}
-              className={`p-2.5 cursor-pointer transition-colors duration-300 ${
-                transparent ? 'text-white/80 hover:text-white' : 'text-[#68645B] hover:text-[#171714]'
-              }`}
-              aria-label="Account"
-              id="nav-account-btn"
-            >
-              <User className="w-[18px] h-[18px]" strokeWidth={1.5} />
-            </button>
-
-            {/* Cart */}
-            {currentRole === 'customer' && (
+            {/* Account dropdown (user is always logged in here) */}
+            <div className="relative" ref={accountRef}>
               <button
-                onClick={() => setIsCartOpen(true)}
-                className={`relative flex items-center gap-2 px-4 py-2 cursor-pointer transition-all duration-300 ${
-                  transparent
-                    ? 'border border-white/40 text-white hover:bg-white/10'
-                    : 'border border-[#DDD7CA] text-[#171714] hover:bg-[#171714] hover:text-white hover:border-[#171714]'
+                onClick={() => setAccountDropOpen(!accountDropOpen)}
+                className={`flex items-center gap-1 p-2.5 cursor-pointer transition-colors duration-300 ${
+                  transparent ? 'text-white/80 hover:text-white' : 'text-[#68645B] hover:text-[#171714]'
                 }`}
-                aria-label={`Cart (${cartCount} items)`}
-                id="nav-cart-btn"
+                aria-label="Account menu"
+                aria-expanded={accountDropOpen}
+                id="nav-account-btn"
               >
-                <ShoppingBag className="w-4 h-4" strokeWidth={1.5} />
-                <span className="label text-[10px] hidden sm:inline">Cart</span>
-                {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#A63D2F] text-white text-[10px] font-semibold flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* Role switcher (dev tool) */}
-            <div className="relative hidden lg:block">
-              <button
-                onClick={() => setRoleDropOpen(!roleDropOpen)}
-                className={`flex items-center gap-1.5 p-2 cursor-pointer transition-colors duration-300 ${
-                  transparent ? 'text-white/50 hover:text-white/80' : 'text-[#DDD7CA] hover:text-[#68645B]'
-                }`}
-                title="Switch role"
-              >
-                <span className="label text-[9px]">{currentRole}</span>
+                <User className="w-[18px] h-[18px]" strokeWidth={1.5} />
                 <ChevronDown className="w-3 h-3" strokeWidth={1.5} />
               </button>
-              {roleDropOpen && (
-                <div
-                  className="absolute right-0 top-full mt-2 w-52 bg-[#171714] border border-white/10 shadow-warm-xl z-50 py-2 animate-fade-in"
-                  onMouseLeave={() => setRoleDropOpen(false)}
-                >
-                  {[
-                    { role: 'customer', label: 'Customer View', icon: '🛍️' },
-                    { role: 'seller', label: 'Seller Studio', icon: '👩‍🍳' },
-                    { role: 'admin', label: 'Admin Console', icon: '⚙️' },
-                  ].map(r => (
+
+              {accountDropOpen && (
+                <div className="absolute right-0 top-full mt-2 w-60 bg-white border border-[#DDD7CA] shadow-warm-xl z-50 animate-fade-in overflow-hidden">
+                  <div className="px-4 py-3.5 bg-[#FAF8F5] border-b border-[#DDD7CA]">
+                    <p className="text-sm font-semibold text-[#171714] truncate">
+                      Hello, {session?.name || 'Guest'}
+                    </p>
+                    <p className="text-xs text-[#68645B] truncate font-mono">{session?.email}</p>
+                  </div>
+                  <div className="py-1.5">
                     <button
-                      key={r.role}
-                      onClick={() => { switchRole(r.role); setRoleDropOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 flex items-center gap-3 text-sm transition-colors cursor-pointer ${
-                        currentRole === r.role ? 'text-[#C99518]' : 'text-white/70 hover:text-white hover:bg-white/5'
-                      }`}
+                      onClick={() => { setCurrentView('account'); setAccountTab('orders'); setAccountDropOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
                     >
-                      <span>{r.icon}</span>
-                      <span className="label text-[10px]">{r.label}</span>
-                      {currentRole === r.role && <span className="ml-auto text-[9px] text-[#C99518]/60">active</span>}
+                      <Package className="w-4 h-4 text-[#C99518]" strokeWidth={1.5} />
+                      My Orders
                     </button>
-                  ))}
+                    <button
+                      onClick={() => { setCurrentView('account'); setAccountTab('wishlist'); setAccountDropOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                    >
+                      <Heart className="w-4 h-4 text-[#A63D2F]" strokeWidth={1.5} />
+                      Wishlist
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('account'); setAccountTab('addresses'); setAccountDropOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                    >
+                      <MapPin className="w-4 h-4 text-[#46513A]" strokeWidth={1.5} />
+                      Addresses
+                    </button>
+                  </div>
+                  <div className="border-t border-[#DDD7CA] py-1.5">
+                    <button
+                      onClick={() => { setAccountDropOpen(false); logout(); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#A63D2F] hover:bg-[#A63D2F]/5 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" strokeWidth={1.5} />
+                      Logout
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
+
+            {/* Cart */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className={`relative flex items-center gap-2 px-4 py-2 cursor-pointer transition-all duration-300 ${
+                transparent
+                  ? 'border border-white/40 text-white hover:bg-white/10'
+                  : 'border border-[#DDD7CA] text-[#171714] hover:bg-[#171714] hover:text-white hover:border-[#171714]'
+              }`}
+              aria-label={`Cart (${cartCount} items)`}
+              id="nav-cart-btn"
+            >
+              <ShoppingBag className="w-4 h-4" strokeWidth={1.5} />
+              <span className="label text-[10px] hidden sm:inline">Cart</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#A63D2F] text-white text-[10px] font-semibold flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </button>
 
             {/* Mobile menu toggle */}
             <button
@@ -274,21 +297,19 @@ export default function Navbar() {
             </nav>
             <div className="px-6 pb-8 space-y-3">
               <button
-                onClick={() => { switchRole('seller'); setMobileOpen(false); }}
-                className="w-full btn-outline-dark text-center justify-center"
+                onClick={() => { setCurrentView('account'); setAccountTab('orders'); setMobileOpen(false); }}
+                className="w-full btn-outline-dark text-center justify-center flex items-center gap-2"
               >
-                Sell with us
+                <User className="w-4 h-4" strokeWidth={1.5} />
+                My Account
               </button>
-              <div className="flex gap-2">
-                {['customer','seller','admin'].map(r => (
-                  <button key={r} onClick={() => { switchRole(r); setMobileOpen(false); }}
-                    className={`flex-1 py-2 label text-[10px] border cursor-pointer transition-colors ${
-                      currentRole === r ? 'bg-[#171714] text-white border-[#171714]' : 'border-[#DDD7CA] text-[#68645B] hover:border-[#171714]'
-                    }`}>
-                    {r}
-                  </button>
-                ))}
-              </div>
+              <button
+                onClick={() => { setMobileOpen(false); logout(); }}
+                className="w-full btn-ghost text-center justify-center flex items-center gap-2 text-[#A63D2F]"
+              >
+                <LogOut className="w-4 h-4" strokeWidth={1.5} />
+                Logout
+              </button>
             </div>
           </div>
         </div>

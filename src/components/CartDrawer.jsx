@@ -16,7 +16,6 @@ export default function CartDrawer() {
     isCartOpen,
     setIsCartOpen,
     cart,
-    sellers,
     removeFromCart,
     updateCartQuantity,
     appliedCoupon,
@@ -35,9 +34,9 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  // Group cart items by seller
+  // Group cart items by seller (kept for structure; single-store shows one group)
   const groupedCart = cart.reduce((acc, item) => {
-    const sellerId = item.product.sellerId;
+    const sellerId = item.product.sellerId || 'store';
     if (!acc[sellerId]) acc[sellerId] = [];
     acc[sellerId].push(item);
     return acc;
@@ -108,7 +107,6 @@ export default function CartDrawer() {
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {cart.length > 0 ? (
               Object.entries(groupedCart).map(([sellerId, items]) => {
-                const seller = sellers.find(s => s.id === sellerId);
                 const sellerSubtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
                 return (
@@ -120,7 +118,7 @@ export default function CartDrawer() {
                     <div className="flex items-center justify-between pb-2 border-b border-[#DDD7CA] text-xs">
                       <div className="flex items-center gap-1.5 label text-[10px] text-[#46513A]">
                         <Store className="w-3.5 h-3.5" />
-                        <span>{seller?.name || 'Local Kitchen'}</span>
+                        <span>Ammikallu Store</span>
                       </div>
                       <span className="label text-[9px] text-[#68645B]">
                         Subtotal: ₹{sellerSubtotal}

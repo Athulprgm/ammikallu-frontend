@@ -26,7 +26,7 @@ const POLICY_LINKS = [
 ];
 
 export default function Footer() {
-  const { navigateToShop, switchRole } = useApp();
+  const { navigateToShop } = useApp();
 
   return (
     <footer
@@ -34,28 +34,6 @@ export default function Footer() {
       role="contentinfo"
       aria-label="Site footer"
     >
-      {/* ── Seller CTA band ──────────────────────────────── */}
-      <div className="border-b border-white/10">
-        <div className="container-editorial py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div>
-            <span className="label text-[10px] text-[#C99518]/70 block mb-3">For Kerala Home Makers</span>
-            <h3 className="font-serif text-2xl md:text-3xl text-white mb-2">
-              Share your craft with the world.
-            </h3>
-            <p className="text-sm text-[#F5F1E8]/50 max-w-md">
-              Are you a home baker, spice maker, or traditional cook? Start your kitchen showcase on Ammikallu today.
-            </p>
-          </div>
-          <button
-            onClick={() => switchRole('seller')}
-            className="btn-ghost shrink-0"
-            id="footer-become-seller-btn"
-          >
-            Start selling →
-          </button>
-        </div>
-      </div>
-
       {/* ── Main footer columns ───────────────────────────── */}
       <div className="container-editorial py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">

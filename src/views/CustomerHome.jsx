@@ -123,7 +123,7 @@ const TESTIMONIALS = [
 
 /* ════════════════════════════════════════════════════════════ */
 export default function CustomerHome() {
-  const { categories, products, sellers, navigateToShop, switchRole, addToCart, openProductDetail } = useApp();
+  const { categories, products, navigateToShop, addToCart, openProductDetail } = useApp();
 
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [selectedProductId, setSelectedProductId] = useState('prod-mulaku-podi');
@@ -134,7 +134,6 @@ export default function CustomerHome() {
   const flagshipProducts = curryPowderProducts.length > 0 ? curryPowderProducts : approvedProducts.slice(0, 2);
   const featuredProduct = flagshipProducts.find(p => p.id === selectedProductId) || flagshipProducts[0] || approvedProducts[0];
   const collectionProducts = approvedProducts.filter(p => p.featured).slice(0, 6);
-  const approvedSellers = sellers.filter(s => s.status === 'approved').slice(0, 3);
 
   const [showScrollPopup, setShowScrollPopup] = useState(false);
   const [popupMinimized, setPopupMinimized] = useState(false);
@@ -586,41 +585,36 @@ export default function CustomerHome() {
             <div className="flex items-end justify-between mb-12">
               <Reveal>
                 <div>
-                  <span className="label text-[#68645B] block mb-3">Verified Home Creators</span>
-                  <h2 id="makers-heading" className="display-md text-[#171714]">Meet the Artisans</h2>
+                  <span className="label text-[#68645B] block mb-3">Why Ammikallu</span>
+                  <h2 id="makers-heading" className="display-md text-[#171714]">The Craft Behind Every Pack</h2>
                 </div>
               </Reveal>
               <Reveal delay={100}>
                 <button
-                  onClick={() => switchRole('seller')}
+                  onClick={() => navigateToShop()}
                   className="btn-outline-dark"
                   id="makers-join-btn"
                 >
-                  Join as maker
+                  Shop all products
                   <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
                 </button>
               </Reveal>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[1px] border border-[#DDD7CA]">
-              {approvedSellers.map((seller, i) => (
-                <Reveal key={seller.id} delay={i * 80} className="border-r border-[#DDD7CA] last:border-r-0">
+              {[
+                { icon: '🌿', title: 'Single-Origin', text: 'Every spice traced to one farm in Kasargod — no blended market lots, ever.' },
+                { icon: '🪨', title: 'Stone-Ground', text: 'Slow-pounded on granite Ammikkallu at ambient temperature to protect essential oils.' },
+                { icon: '☀️', title: 'Sun-Dried', text: '14-day natural sun-curing on reed mats — zero artificial colors or preservatives.' }
+              ].map((card, i) => (
+                <Reveal key={card.title} delay={i * 80} className="border-r border-[#DDD7CA] last:border-r-0">
                   <TiltCard className="h-full">
                     <div className="group bg-[#F5F1E8] hover:bg-white transition-colors duration-300 p-8 h-full">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-14 h-14 overflow-hidden bg-[#EEEBE3] shrink-0">
-                          <img src={seller.image} alt={seller.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                        </div>
-                        <div>
-                          <h3 className="font-serif text-lg text-[#171714]">{seller.name}</h3>
-                          <span className="label text-[10px] text-[#68645B]">{seller.district}, Kerala</span>
-                        </div>
+                      <div className="w-14 h-14 bg-white border border-[#DDD7CA] flex items-center justify-center text-2xl mb-6">
+                        {card.icon}
                       </div>
-                      <p className="text-sm text-[#68645B] leading-relaxed line-clamp-3 mb-6">{seller.specialty || seller.description?.slice(0, 120)}</p>
-                      <div className="flex items-center gap-3 border-t border-[#DDD7CA] pt-4">
-                        <span className="font-serif text-sm text-[#C99518]">★ {seller.rating}</span>
-                        <span className="label text-[10px] text-[#68645B]">{seller.reviewsCount} reviews</span>
-                      </div>
+                      <h3 className="font-serif text-lg text-[#171714] mb-3">{card.title}</h3>
+                      <p className="text-sm text-[#68645B] leading-relaxed">{card.text}</p>
                     </div>
                   </TiltCard>
                 </Reveal>
