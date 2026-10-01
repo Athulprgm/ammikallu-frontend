@@ -46,7 +46,7 @@ export default function Navbar() {
   const handleNavAction = (action) => {
     setMobileOpen(false);
     if (action === 'shop') navigateToShop();
-    else if (action === 'story') { setCurrentView('home'); setTimeout(() => { document.getElementById('kerala-story')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }
+    else if (action === 'story') { setCurrentView('home'); setTimeout(() => { (document.getElementById('philosophy-section') || document.getElementById('collection-heading'))?.scrollIntoView({ behavior: 'smooth' }); }, 100); }
     else if (action === 'ingredients') { setCurrentView('home'); setTimeout(() => { document.getElementById('ingredient-story')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }
     else navigateToShop();
   };

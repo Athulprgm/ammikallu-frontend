@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import LoadingScreen from './components/LoadingScreen';
 import Navbar from './components/Navbar';
@@ -16,12 +16,33 @@ import UserAccountView from './views/UserAccountView';
 import SellerPortal from './views/SellerPortal';
 import AdminConsole from './views/AdminConsole';
 
+// Session flag so the intro animation only plays once per browser session (Bug #4)
+const INTRO_KEY = 'ammikallu.introSeen';
+const hasSeenIntro = () => {
+  try {
+    return window.sessionStorage.getItem(INTRO_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
 function MainAppContent() {
-  const { currentView, currentRole, toast } = useApp();
-  const [showLoading, setShowLoading] = useState(true);
+  const { currentView, currentRole, toast, setToast } = useApp();
+  const [showLoading, setShowLoading] = useState(() => !hasSeenIntro());
 
   if (showLoading) {
-    return <LoadingScreen onComplete={() => setShowLoading(false)} autoStart={true} />;
+    return (
+      <LoadingScreen
+        onComplete={() => {
+          try {
+            window.sessionStorage.setItem(INTRO_KEY, '1');
+          } catch {
+            /* storage unavailable — just skip next time if possible */
+          }
+          setShowLoading(false);
+        }}
+      />
+    );
   }
 
   return (
@@ -32,7 +53,7 @@ function MainAppContent() {
 
 
       {/* Toast */}
-      <Toast toast={toast} onClose={() => { }} />
+      <Toast toast={toast} onClose={() => setToast(null)} />
 
       {/* Navbar */}
       <Navbar />

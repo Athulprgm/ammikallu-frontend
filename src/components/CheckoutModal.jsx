@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import useOverlayA11y from '../hooks/useOverlayA11y';
 import {
   X,
   MapPin,
@@ -40,6 +41,9 @@ export default function CheckoutModal() {
   const [newAddrDistrict, setNewAddrDistrict] = useState('Ernakulam');
   const [newAddrPincode, setNewAddrPincode] = useState('');
 
+  // Escape to close, focus trap, background scroll lock (Bug #5)
+  const overlayRef = useOverlayA11y(isCheckoutOpen, () => setIsCheckoutOpen(false));
+
   if (!isCheckoutOpen) return null;
 
   const selectedAddr = addresses.find(a => a.id === selectedAddressId) || addresses[0];
@@ -75,7 +79,14 @@ export default function CheckoutModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in">
+    <div
+      ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Checkout"
+      tabIndex={-1}
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+    >
       <div
         className="bg-[#F5F1E8] w-full max-w-3xl border border-[#DDD7CA] shadow-2xl relative flex flex-col max-h-[90vh]"
         onClick={e => e.stopPropagation()}

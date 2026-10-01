@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
+import useOverlayA11y from '../hooks/useOverlayA11y';
 import {
   X,
   Star,
@@ -37,15 +38,27 @@ export default function ProductDetailModal() {
 
   const scrollRef = useRef(null);
 
-  // Lock background scroll and trap wheel events inside modal
+  // Escape to close, focus trap + background scroll lock (Bug #5)
+  const overlayRef = useOverlayA11y(isProductModalOpen, () => setIsProductModalOpen(false));
+
+  // Reset all selections whenever a new product is opened
+  useEffect(() => {
+    if (selectedProduct) {
+      setSelectedWeightIndex(0);
+      setSelectedImageIndex(0);
+      setQuantity(1);
+      setNewReviewComment('');
+      setReviewerName('');
+      setNewReviewRating(5);
+      // Scroll back to top when switching products
+      if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    }
+  }, [selectedProduct?.id]);
+
+  // Trap wheel scrolling inside the modal body (scroll lock itself now
+  // lives in useOverlayA11y, shared with the other overlays).
   useEffect(() => {
     if (!isProductModalOpen) return;
-    const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.overflow = 'hidden';
 
     const trapWheel = (e) => {
       const el = scrollRef.current;
@@ -61,13 +74,6 @@ export default function ProductDetailModal() {
     if (modalEl) modalEl.addEventListener('wheel', trapWheel, { passive: false });
 
     return () => {
-      const sy = parseInt(document.body.style.top || '0') * -1;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.overflow = '';
-      window.scrollTo(0, sy);
       if (modalEl) modalEl.removeEventListener('wheel', trapWheel);
     };
   }, [isProductModalOpen]);
@@ -128,6 +134,11 @@ export default function ProductDetailModal() {
 
       {/* Backdrop */}
       <div
+        ref={overlayRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={selectedProduct ? selectedProduct.name : 'Product details'}
+        tabIndex={-1}
         className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6 md:p-10"
         style={{ background: 'rgba(23,23,20,0.55)', backdropFilter: 'blur(12px)' }}
         onClick={() => setIsProductModalOpen(false)}

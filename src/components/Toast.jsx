@@ -1,15 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export default function Toast({ toast, onClose }) {
+  // Keep onClose in a ref so an inline arrow function won't reset the
+  // dismiss timer on every parent render (Bug #1).
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => {
-        if (onClose) onClose();
-      }, 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [toast, onClose]);
+    if (!toast) return;
+    const timer = setTimeout(() => {
+      onCloseRef.current?.();
+    }, 3500);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   if (!toast) return null;
 

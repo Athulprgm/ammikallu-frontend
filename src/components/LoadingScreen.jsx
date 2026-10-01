@@ -5,6 +5,7 @@ export default function LoadingScreen({ onComplete }) {
   const [isFading, setIsFading] = useState(false);
 
   const handleFinish = () => {
+    if (isFading) return; // guard against skip + onEnded racing
     setIsFading(true);
     setTimeout(() => {
       if (onComplete) {
@@ -48,6 +49,15 @@ export default function LoadingScreen({ onComplete }) {
           <source src="/loadingscreen/animation.webm" type="video/webm" />
         </video>
       </div>
+
+      {/* Skip button — never trap the user (Bug #4) */}
+      <button
+        type="button"
+        onClick={handleFinish}
+        className="label text-[10px] mt-6 text-[#68645B] hover:text-[#171714] transition-colors cursor-pointer underline underline-offset-4"
+      >
+        Skip Intro
+      </button>
     </div>
   );
 }

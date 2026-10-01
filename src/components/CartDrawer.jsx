@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import useOverlayA11y from '../hooks/useOverlayA11y';
 import {
   X,
   ShoppingBag,
@@ -29,6 +30,9 @@ export default function CartDrawer() {
 
   const [couponInput, setCouponInput] = useState('');
 
+  // Escape to close, focus trap, background scroll lock (Bug #5)
+  const overlayRef = useOverlayA11y(isCartOpen, () => setIsCartOpen(false));
+
   if (!isCartOpen) return null;
 
   // Group cart items by seller
@@ -51,7 +55,14 @@ export default function CartDrawer() {
   const amountNeededForFreeDelivery = Math.max(0, freeDeliveryThreshold - cartSubtotal);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm animate-fade-in">
+    <div
+      ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Shopping Basket"
+      tabIndex={-1}
+      className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm animate-fade-in"
+    >
       <div className="absolute inset-0" onClick={() => setIsCartOpen(false)}></div>
 
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">

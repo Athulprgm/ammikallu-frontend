@@ -19,7 +19,7 @@ function raf(time) {
 }
 requestAnimationFrame(raf);
 
-/* expose for GSAP ScrollTrigger compatibility */
+/* Expose Lenis for any scroll integrations that need direct access */
 window.__lenis = lenis;
 
 ReactDOM.createRoot(document.getElementById('root')).render(

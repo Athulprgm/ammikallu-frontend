@@ -237,7 +237,7 @@ export default function HeroSection() {
                   </svg>
                 </button>
                 <button
-                  onClick={() => { setCurrentView('home'); setTimeout(() => document.getElementById('kerala-story')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                  onClick={() => { setCurrentView('home'); setTimeout(() => (document.getElementById('philosophy-section') || document.getElementById('collection-heading'))?.scrollIntoView({ behavior: 'smooth' }), 100); }}
                   className="btn-ghost w-full sm:w-auto flex justify-center"
                   id="hero-story-btn"
                 >

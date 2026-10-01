@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import usePersistedState from '../hooks/usePersistedState';
 import {
   CATEGORIES_SEED,
   SELLERS_SEED,
@@ -33,15 +34,17 @@ export function AppProvider({ children }) {
   const [products, setProducts] = useState(PRODUCTS_SEED);
   const [sellers, setSellers] = useState(SELLERS_SEED);
   const [categories, setCategories] = useState(CATEGORIES_SEED);
-  const [orders, setOrders] = useState(INITIAL_ORDERS);
   const [reviews, setReviews] = useState(INITIAL_REVIEWS);
-  const [coupons, setCoupons] = useState(INITIAL_COUPONS);
-  const [addresses, setAddresses] = useState(INITIAL_ADDRESSES);
+  const [coupons] = useState(INITIAL_COUPONS);
 
-  // Cart & Wishlist State
-  const [cart, setCart] = useState([]);
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [wishlist, setWishlist] = useState([]);
+  // Persisted State — survives a page refresh (Bug #6)
+  const [orders, setOrders] = usePersistedState('ammikallu.orders', INITIAL_ORDERS);
+  const [addresses, setAddresses] = usePersistedState('ammikallu.addresses', INITIAL_ADDRESSES);
+
+  // Cart & Wishlist State (persisted)
+  const [cart, setCart] = usePersistedState('ammikallu.cart', []);
+  const [appliedCoupon, setAppliedCoupon] = usePersistedState('ammikallu.appliedCoupon', null);
+  const [wishlist, setWishlist] = usePersistedState('ammikallu.wishlist', []);
 
   // Notifications & Toast
   const [notifications, setNotifications] = useState([
@@ -87,30 +90,36 @@ export function AppProvider({ children }) {
     const price = customPrice !== null ? customPrice : (product.salePrice || product.price);
     const cartItemId = `${product.id}-${weight}`;
 
+    // Match an existing line using current state BEFORE the updater runs,
+    // so validation (and its toast) stays out of the state updater (Bug #2).
+    const matches = (item) =>
+      item.cartItemId === cartItemId ||
+      (!item.cartItemId && item.productId === product.id && item.selectedWeight === weight);
+
+    const existing = cart.find(matches);
+    if (existing && existing.quantity + quantityToAdd > product.stock) {
+      showToast(`Maximum available stock is ${product.stock}`, 'warning');
+      return;
+    }
+
+    // Pure updater — no side effects, safe under StrictMode double-invocation.
     setCart(prevCart => {
-      const existingIndex = prevCart.findIndex(item => 
-        item.cartItemId === cartItemId || (!item.cartItemId && item.productId === product.id && item.selectedWeight === weight)
-      );
-      if (existingIndex > -1) {
+      const idx = prevCart.findIndex(matches);
+      if (idx > -1) {
         const updated = [...prevCart];
-        const newQty = updated[existingIndex].quantity + quantityToAdd;
-        if (newQty > product.stock) {
-          showToast(`Maximum available stock is ${product.stock}`, 'warning');
-          return prevCart;
-        }
-        updated[existingIndex].quantity = newQty;
+        updated[idx] = { ...updated[idx], quantity: updated[idx].quantity + quantityToAdd };
         return updated;
-      } else {
-        return [...prevCart, {
-          cartItemId,
-          productId: product.id,
-          selectedWeight: weight,
-          quantity: quantityToAdd,
-          price,
-          product
-        }];
       }
+      return [...prevCart, {
+        cartItemId,
+        productId: product.id,
+        selectedWeight: weight,
+        quantity: quantityToAdd,
+        price,
+        product
+      }];
     });
+
     showToast(`Added "${product.name}" (${weight}) to cart!`, 'success');
   };
 
@@ -120,20 +129,29 @@ export function AppProvider({ children }) {
   };
 
   const updateCartQuantity = (cartIdentifier, delta) => {
-    setCart(prevCart => {
-      return prevCart.map(item => {
-        if (item.cartItemId === cartIdentifier || item.productId === cartIdentifier) {
-          const newQty = item.quantity + delta;
-          if (newQty <= 0) return null;
-          if (newQty > item.product.stock) {
-            showToast(`Only ${item.product.stock} units in stock`, 'warning');
-            return item;
+    const item = cart.find(
+      i => i.cartItemId === cartIdentifier || i.productId === cartIdentifier
+    );
+    if (!item) return;
+
+    // Stock validation happens before the updater, so no toast inside it (Bug #2).
+    if (item.quantity + delta > item.product.stock) {
+      showToast(`Only ${item.product.stock} units in stock`, 'warning');
+      return;
+    }
+
+    setCart(prevCart =>
+      prevCart
+        .map(prevItem => {
+          if (prevItem.cartItemId === cartIdentifier || prevItem.productId === cartIdentifier) {
+            const newQty = prevItem.quantity + delta;
+            if (newQty <= 0) return null; // remove line when quantity hits 0
+            return { ...prevItem, quantity: newQty };
           }
-          return { ...item, quantity: newQty };
-        }
-        return item;
-      }).filter(Boolean);
-    });
+          return prevItem;
+        })
+        .filter(Boolean)
+    );
   };
 
   const clearCart = () => {
@@ -465,7 +483,8 @@ export function AppProvider({ children }) {
     addAddress,
     setDefaultAddress,
     deleteAddress,
-    showToast
+    showToast,
+    setToast
   };
 
   return (

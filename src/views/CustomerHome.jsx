@@ -3,11 +3,7 @@ import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import HeroSection from '../components/HeroSection';
 import Marquee from '../components/Marquee';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Plus, Sparkles, ShoppingBag, X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
 
 /* ── Animated section wrapper ──────────────────────────────── */
 function Reveal({ children, delay = 0, className = '', type = 'up' }) {
@@ -104,64 +100,7 @@ function StatPillar({ fact, delay = 0 }) {
   );
 }
 
-/* ── Dark Stat pillar with count-up ────────────────────────── */
-function DarkStatPillar({ target, prefix = '', suffix = '', divisor = 1, label, color }) {
-  const [count, ref] = useCountUp(target);
-  const display = divisor && divisor > 1 ? (count / divisor).toFixed(1) : count;
-  return (
-    <div>
-      <span className="font-serif text-3xl block mb-1" style={{ color }} ref={ref}>
-        {prefix}{display}{suffix}
-      </span>
-      <span className="label text-[9px] text-[#F5F1E8]/40">{label}</span>
-    </div>
-  );
-}
 
-/* ── Section divider ───────────────────────────────────────── */
-function SectionDivider() {
-
-  return <div className="section-rule" aria-hidden="true" />;
-}
-
-/* ── Ingredient data ────────────────────────────────────────── */
-const INGREDIENTS = [
-  {
-    name: 'Turmeric',
-    origin: 'Kasargod, Kerala',
-    desc: 'Single-origin Kasargod turmeric with curcumin content exceeding 5.6%. Sun-dried on reed mats, cold stone-ground at ambient temperature to preserve every volatile oil.',
-    color: '#C99518',
-    img: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=1200&q=90',
-  },
-  {
-    name: 'Kashmiri Chilli',
-    origin: 'Stone-ground in Kerala',
-    desc: 'Vibrant Kashmiri chillies prized for their deep crimson colour and moderate heat. Stone-pounded slowly to release natural resins without destroying the delicate capsaicin structure.',
-    color: '#A63D2F',
-    img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=1200&q=90',
-  },
-  {
-    name: 'Black Pepper',
-    origin: 'Tellicherry, Kerala',
-    desc: 'Tellicherry black pepper — the world\'s most revered variety. Harvested fully mature for maximum piperine content, then slow-ground on granite for an aroma that fills the room.',
-    color: '#46513A',
-    img: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=1200&q=90',
-  },
-  {
-    name: 'Cardamom',
-    origin: 'Idukki, Kerala',
-    desc: 'Green cardamom from Idukki\'s misty highlands. Each pod hand-sorted and stone-ground just before packing to capture the ephemeral floral esters that evaporate within hours of grinding.',
-    color: '#46513A',
-    img: 'https://images.unsplash.com/photo-1604147706283-d7119b5b822c?w=1200&q=90',
-  },
-  {
-    name: 'Cinnamon',
-    origin: 'True Ceylon, Kerala processed',
-    desc: 'True Ceylon cinnamon — not the impostor cassia. Paper-thin bark layers of delicate sweetness, cold-ground to a fine powder that dissolves into food rather than sitting atop it.',
-    color: '#8B5E3C',
-    img: 'https://images.unsplash.com/photo-1526369513998-4daeae2b6c0a?w=1200&q=90',
-  },
-];
 
 /* ── Testimonials ───────────────────────────────────────────── */
 const TESTIMONIALS = [
@@ -186,11 +125,9 @@ const TESTIMONIALS = [
 export default function CustomerHome() {
   const { categories, products, sellers, navigateToShop, switchRole, addToCart, openProductDetail } = useApp();
 
-  const [activeIngredient, setActiveIngredient] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [selectedProductId, setSelectedProductId] = useState('prod-mulaku-podi');
   const [featuredWeightIdx, setFeaturedWeightIdx] = useState(3); // Default to 1 Kg (usually index 3)
-  const ingredientRef = useRef(null);
 
   const approvedProducts = products.filter(p => p.status === 'approved');
   const curryPowderProducts = approvedProducts.filter(p => p.categoryId === 'curry-powder' || p.categoryId === 'spices');
@@ -233,28 +170,28 @@ export default function CustomerHome() {
 
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight;
-      
+
       // Calculate progress through the section (0 = top reached, 1 = bottom reached)
       const scrollableDistance = rect.height - vh;
       if (scrollableDistance <= 0) return;
-      
+
       const scrollProgress = -rect.top / scrollableDistance;
 
       // Show popup between 10% and 95% of the section's scroll
       if (scrollProgress > 0.1 && scrollProgress <= 0.95) {
         if (!popupMinimized) {
           setShowScrollPopup(true);
-          
+
           // Scrub products based on scroll progress over the active window
           const scrubProgress = (scrollProgress - 0.1) / 0.85;
-          
+
           let targetIndex = 0;
           if (scrubProgress > 0.33 && scrubProgress <= 0.66) {
             targetIndex = 1;
           } else if (scrubProgress > 0.66) {
             targetIndex = 2;
           }
-          
+
           if (flagshipProducts[targetIndex]) {
             setSelectedProductId((prev) => {
               const nextId = flagshipProducts[targetIndex].id;
@@ -266,28 +203,14 @@ export default function CustomerHome() {
         setShowScrollPopup(false);
       }
     };
-    
+
     window.addEventListener('scroll', onScroll, { passive: true });
     // Initial check
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, [popupMinimized, flagshipProducts]);
 
-  /* Ingredient scroll section */
-  useEffect(() => {
-    const el = ingredientRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const rect = el.getBoundingClientRect();
-      const scrollH = el.offsetHeight - window.innerHeight;
-      if (scrollH <= 0) return;
-      const scrolled = -rect.top;
-      const p = Math.max(0, Math.min(1, scrolled / scrollH));
-      setActiveIngredient(Math.min(INGREDIENTS.length - 1, Math.floor(p * INGREDIENTS.length)));
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+
 
   /* Testimonial auto-rotate */
   useEffect(() => {
@@ -440,7 +363,7 @@ export default function CustomerHome() {
                           </span>
                         )}
                         <p className="text-[11px] uppercase tracking-[0.15em] text-[#A63D2F] font-semibold mt-2">
-                          {isCombo 
+                          {isCombo
                             ? 'Cold Stone-Ground • Kerala Heritage'
                             : isChilli
                               ? 'Cold Stone-Ground • Kasargod'
@@ -553,194 +476,10 @@ export default function CustomerHome() {
                 </p>
               </div>
             )}
-
-            {/* 3-pillar facts — count-up */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-[1px] border border-t-0 border-[#DDD7CA] mt-[1px]">
-              {[
-                { target: 56, suffix: '%+', prefix: '>', unit: 'Curcumin', desc: '14-day sun-cured whole roots. Highest curcumin yield of any commercial turmeric.', divisor: 10 },
-                { target: 28, suffix: '°C', unit: 'Stone Temp', desc: 'Cold-ground at ambient room temperature. No heat. No oxidised oils.', divisor: 1 },
-                { target: 100, suffix: '%', unit: 'Single Origin', desc: 'Zero blending. Zero added starch, color or spent-spice waste.', divisor: 1 },
-              ].map((fact, i) => <StatPillar key={i} fact={fact} delay={i * 80} />)}
-            </div>
           </div>
         </section>
 
-        {/* ── 6. DARK EDITORIAL — Granite Stone Craft ─────────── */}
-        <section className="bg-[#171714] py-24 md:py-32 border-b border-[#DDD7CA]" aria-labelledby="craft-heading">
-          <div className="container-editorial">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-6 xl:col-span-7 order-2 lg:order-1">
-                <Reveal>
-                  <span className="label text-[#C99518]/80 block mb-6">Traditional Heritage</span>
-                </Reveal>
-                <Reveal delay={80}>
-                  <h2 id="craft-heading" className="display-lg text-[#F5F1E8] mb-8">
-                    Granite Stone.<br />
-                    Natural Rhythm.<br />
-                    Zero Heat Damage.
-                  </h2>
-                </Reveal>
-                <Reveal delay={160}>
-                  <p className="text-[#F5F1E8]/60 max-w-md mb-10 leading-relaxed">
-                    In Kerala's heritage homes, the Ammikkallu was the altar of flavour. When turmeric and chillies are ground by heavy granite friction at ambient room temperature, the natural moisture and essential volatile resins are locked inside rather than vaporised.
-                  </p>
-                </Reveal>
-                <Reveal delay={240}>
-                  <div className="grid grid-cols-3 gap-6 border-t border-white/10 pt-8">
-                    <DarkStatPillar target={56} prefix=">" suffix="%+" divisor={10} label="Curcumin" color="#C99518" />
-                    <DarkStatPillar target={28} suffix="°C" label="Cold Stone" color="#F5F1E8" />
-                    <DarkStatPillar target={100} suffix="%" label="Single Origin" color="#A63D2F" />
-                  </div>
-                </Reveal>
-              </div>
 
-              <div className="lg:col-span-6 xl:col-span-5 order-1 lg:order-2">
-                <Reveal delay={120}>
-                  <div className="relative aspect-[4/5] overflow-hidden">
-                    <img
-                      src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=900&q=90"
-                      alt="Cold Stone-Pounded Spices"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <span className="label text-[10px] text-white/50 block mb-1">Ground on Order</span>
-                      <p className="text-sm text-white/80">Small 5kg batches for maximum aromatic intensity.</p>
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Dark Marquee Ribbon */}
-        <Marquee
-          items={['Hand-Harvested Kasargod Roots', 'Ambient Temperature Granite Friction', 'Zero Chemical Bleaching', 'Preserved Volatile Essential Oils', 'Pounded in Small 5kg Batches', 'Direct from Kerala Family Farms']}
-          speed={38}
-          reverse={true}
-          className="py-4 bg-[#11110F] text-[#F5F1E8]/70 border-b border-white/10"
-        />
-
-        {/* ── 7. INGREDIENT STORY (Sticky scroll) ─────────────── */}
-        <section
-          id="ingredient-story"
-          ref={ingredientRef}
-          className="relative"
-          style={{ height: `${INGREDIENTS.length * 100}vh` }}
-          aria-label="Ingredient stories"
-        >
-          <div className="sticky top-0 h-[100svh] overflow-hidden">
-            {/* Background images */}
-            {INGREDIENTS.map((ing, i) => (
-              <div
-                key={ing.name}
-                className={`ingredient-panel ${i === activeIngredient ? 'active' : ''}`}
-                aria-hidden={i !== activeIngredient}
-              >
-                <img
-                  src={ing.img}
-                  alt={ing.name}
-                  className="w-full h-full object-cover"
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                />
-                <div className="hero-overlay absolute inset-0" />
-              </div>
-            ))}
-
-            {/* Content overlay */}
-            <div className="absolute inset-0 flex items-end">
-              <div className="container-editorial pb-16 md:pb-24 w-full">
-                <div className="max-w-xl">
-                  <span className="label text-[10px] text-white/40 block mb-4">
-                    0{activeIngredient + 1} / 0{INGREDIENTS.length} — Ingredients
-                  </span>
-                  <h2
-                    key={activeIngredient}
-                    className="display-lg text-white mb-4 animate-fade-in-up"
-                  >
-                    {INGREDIENTS[activeIngredient].name}
-                  </h2>
-                  <span className="label text-[10px] text-white/50 block mb-5">
-                    {INGREDIENTS[activeIngredient].origin}
-                  </span>
-                  <p
-                    key={`desc-${activeIngredient}`}
-                    className="body-text text-white/65 max-w-sm animate-fade-in-up"
-                    style={{ animationDelay: '100ms' }}
-                  >
-                    {INGREDIENTS[activeIngredient].desc}
-                  </p>
-                </div>
-
-                {/* Ingredient tab selector */}
-                <div className="flex items-center gap-5 md:gap-6 mt-8 overflow-x-auto hide-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-                  {INGREDIENTS.map((ing, i) => (
-                    <button
-                      key={ing.name}
-                      onClick={() => setActiveIngredient(i)}
-                      className={`label text-[10px] cursor-pointer transition-all duration-300 whitespace-nowrap ${i === activeIngredient ? 'text-white' : 'text-white/30 hover:text-white/60'
-                        }`}
-                    >
-                      {ing.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── 8. KERALA STORY ─────────────────────────────────── */}
-        <section id="kerala-story" className="py-24 md:py-32 border-b border-[#DDD7CA] bg-[#F5F1E8]" aria-labelledby="kerala-heading">
-          <div className="container-editorial">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <Reveal>
-                <div>
-                  <span className="label text-[#68645B] block mb-6">From the Land. With Respect.</span>
-                  <h2 id="kerala-heading" className="display-lg text-[#171714] mb-8">
-                    Tradition, Refined<br />for Today.
-                  </h2>
-                  <p className="body-text mb-6 max-w-md">
-                    Every product begins in the fertile farms of Kasargod, the backwaters of Kottayam, or the heritage kitchens of Kozhikode. We work directly with farmers who have been cultivating these lands for generations.
-                  </p>
-                  <p className="body-text mb-10 max-w-md">
-                    No middlemen. No industrial processing. Just honest produce, brought directly to your kitchen with integrity.
-                  </p>
-                  <button
-                    onClick={() => switchRole('seller')}
-                    className="btn-outline-dark"
-                    id="story-become-seller-btn"
-                  >
-                    Join as a home maker
-                    <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
-                  </button>
-                </div>
-              </Reveal>
-
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80',
-                  'https://images.unsplash.com/photo-1515224526135-56a73e655e0f?w=600&q=80',
-                  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80',
-                  'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=600&q=80',
-                ].map((src, i) => (
-                  <Reveal key={i} delay={i * 60}>
-                    <div className={`overflow-hidden ${i % 2 === 1 ? 'mt-6' : ''}`}>
-                      <img
-                        src={src}
-                        alt={`Kerala story ${i + 1}`}
-                        className="w-full object-cover aspect-[3/4] hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        loading="lazy"
-                      />
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* ── 9. COLLECTION SHOWCASE ──────────────────────────── */}
         {collectionProducts.length > 0 && (
@@ -925,12 +664,12 @@ export default function CustomerHome() {
 
       {/* ── 14. SCROLL-TRIGGERED INTERACTIVE PRODUCT POPUP ─── */}
       {showScrollPopup && !popupMinimized && (
-        <div 
+        <div
           className="fixed inset-0 z-[1000] flex items-center justify-center animate-fade-in backdrop-blur-2xl transition-colors duration-1000 ease-in-out"
-          style={{ 
-            backgroundColor: featuredProduct?.id === 'prod-manjal-podi' ? 'rgba(201, 149, 24, 0.25)' : 
-                             featuredProduct?.id === 'prod-kurumulaku-podi' ? 'rgba(70, 81, 58, 0.3)' : 
-                             'rgba(166, 61, 47, 0.25)' 
+          style={{
+            backgroundColor: featuredProduct?.id === 'prod-manjal-podi' ? 'rgba(201, 149, 24, 0.25)' :
+              featuredProduct?.id === 'prod-kurumulaku-podi' ? 'rgba(70, 81, 58, 0.3)' :
+                'rgba(166, 61, 47, 0.25)'
           }}
         >
 
@@ -945,10 +684,10 @@ export default function CustomerHome() {
           >
             {flagshipProducts.slice(0, 3).map((p) => {
               const isActive = p.id === featuredProduct?.id;
-              
-              const imgUrl = p.id === 'prod-mulaku-podi' ? "/mulaku-podi/select product-mulakupodi.png" : 
-                            p.id === 'prod-manjal-podi' ? "/manjal podi/select product-manjalpodi.png" : 
-                            "/kurumulaku podi/250g.png";
+
+              const imgUrl = p.id === 'prod-mulaku-podi' ? "/mulaku-podi/select product-mulakupodi.png" :
+                p.id === 'prod-manjal-podi' ? "/manjal podi/select product-manjalpodi.png" :
+                  "/kurumulaku podi/250g.png";
 
               return (
                 <img

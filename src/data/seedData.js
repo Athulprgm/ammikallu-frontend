@@ -247,8 +247,8 @@ export const PRODUCTS_SEED = [
     slug: 'kasargod-heritage-spices-combo',
     sellerId: 'seller-spices',
     categoryId: 'curry-powder',
-    price: 590,
-    salePrice: 499,
+    price: 849,
+    salePrice: 849,
     rating: 4.99,
     reviewsCount: 342,
     weight: '500g',
@@ -275,8 +275,8 @@ export const PRODUCTS_SEED = [
     shortDescription: 'The ultimate premium spices combo featuring turmeric, chilli, and black pepper.',
     stock: 120,
     weightOptions: [
-      { weight: '500g', price: 590, salePrice: 499, image: '/products-combo/combo-500g.png' },
-      { weight: '1 Kg', price: 1100, salePrice: 949, image: '/products-combo/combo-p-1kg.png' }
+      { weight: '500g', price: 849, salePrice: 849, image: '/products-combo/combo-500g.png' },
+      { weight: '1 Kg', price: 1449, salePrice: 1449, image: '/products-combo/combo-p-1kg.png' }
     ],
     purityNotes: ['Stone-Pounded', 'Zero Fillers', 'Sun-Dried', 'Combo Pack']
   }
