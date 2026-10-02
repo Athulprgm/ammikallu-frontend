@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import {
   Mail, Lock, Eye, EyeOff, User as UserIcon, ShieldCheck, ArrowRight,
-  Loader2, AlertCircle, BadgeCheck
+  Loader2, AlertCircle, BadgeCheck, ArrowLeft, X
 } from 'lucide-react';
 
 /**
@@ -11,7 +11,7 @@ import {
  * Single fixed admin account; users self-register.
  */
 export default function AuthScreen() {
-  const { login, signup } = useApp();
+  const { login, signup, setCurrentView } = useApp();
   const [mode, setMode] = useState('user'); // 'user' | 'admin'
   const [tab, setTab] = useState('login'); // 'login' | 'signup'
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +41,8 @@ export default function AuthScreen() {
       setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
-        login(form.email, form.password); // context shows error toast on failure
+        const ok = login(form.email, form.password); // context shows error toast on failure
+        if (ok) setCurrentView('home');
       }, 500);
       return;
     }
@@ -64,9 +65,11 @@ export default function AuthScreen() {
     setTimeout(() => {
       setIsLoading(false);
       if (tab === 'signup') {
-        signup(form.name.trim(), form.email, form.password);
+        const ok = signup(form.name.trim(), form.email, form.password);
+        if (ok) setCurrentView('home');
       } else {
-        login(form.email, form.password);
+        const ok = login(form.email, form.password);
+        if (ok) setCurrentView('home');
       }
     }, 500);
   };
@@ -87,11 +90,30 @@ export default function AuthScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F3F6] flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-4xl bg-white shadow-sm flex flex-col md:flex-row min-h-[560px]">
+    <div className="min-h-screen bg-[#F1F3F6] flex items-center justify-center p-4 sm:p-6 relative">
+      <div className="w-full max-w-4xl bg-white shadow-sm flex flex-col md:flex-row min-h-[560px] relative">
+        {/* Close / Return to store button */}
+        <button
+          type="button"
+          onClick={() => setCurrentView('home')}
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-2 text-[#68645B] hover:text-[#171714] transition-colors cursor-pointer rounded-full hover:bg-black/5"
+          aria-label="Return to store"
+          title="Return to store"
+        >
+          <X className="w-5 h-5" strokeWidth={1.5} />
+        </button>
 
         {/* Left brand panel (Flipkart-style) */}
         <div className="md:w-[38%] bg-[#A63D2F] text-[#F5F1E8] p-8 md:p-10 flex flex-col">
+          <button
+            type="button"
+            onClick={() => setCurrentView('home')}
+            className="flex items-center gap-1.5 text-xs text-white/80 hover:text-white transition-colors cursor-pointer mb-6 self-start group"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+            <span>Back to Store</span>
+          </button>
+
           <h1 className="font-serif text-3xl md:text-4xl leading-tight">
             Login
           </h1>

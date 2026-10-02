@@ -17,6 +17,7 @@ import {
 
 export default function UserAccountView() {
   const {
+    session,
     accountTab,
     setAccountTab,
     orders,
@@ -26,7 +27,8 @@ export default function UserAccountView() {
     deleteAddress,
     setDefaultAddress,
     notifications,
-    navigateToShop
+    navigateToShop,
+    setCurrentView
   } = useApp();
 
   const [expandedOrderId, setExpandedOrderId] = useState(orders[0]?.id || null);
@@ -39,31 +41,61 @@ export default function UserAccountView() {
       <div className="container-editorial">
 
         {/* Account Banner */}
-        <div className="border border-[#DDD7CA] bg-white p-8 md:p-10 mb-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="w-16 h-16 bg-[#171714] text-[#F5F1E8] flex items-center justify-center font-serif text-2xl border border-[#DDD7CA]">
-              A
-            </div>
+        {!session ? (
+          <div className="border border-[#DDD7CA] bg-white p-8 md:p-10 mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
               <span className="label text-[#A63D2F] block mb-1">
-                ഉപഭോക്തൃ വിവരങ്ങൾ • Patron Account
+                ഉപഭോക്തൃ ലോഗിൻ • Patron Sign In
               </span>
-              <h1 className="font-serif text-3xl sm:text-4xl text-[#171714]">
-                Athul Krishna
+              <h1 className="font-serif text-2xl sm:text-3xl text-[#171714]">
+                Sign in to your Account
               </h1>
-              <p className="text-xs text-[#68645B] mt-1 font-mono">
-                athul@ammikkallu.test • Ernakulam, Kerala
+              <p className="text-xs text-[#68645B] mt-1">
+                Log in to view past orders, track deliveries, and manage saved delivery addresses.
               </p>
             </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCurrentView('auth')}
+                className="btn-primary"
+              >
+                Sign In / Register
+              </button>
+              <button
+                onClick={() => setCurrentView('home')}
+                className="btn-outline-dark"
+              >
+                Return to Store
+              </button>
+            </div>
           </div>
+        ) : (
+          <div className="border border-[#DDD7CA] bg-white p-8 md:p-10 mb-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="w-16 h-16 bg-[#171714] text-[#F5F1E8] flex items-center justify-center font-serif text-2xl border border-[#DDD7CA]">
+                {session.name ? session.name[0].toUpperCase() : 'A'}
+              </div>
+              <div>
+                <span className="label text-[#A63D2F] block mb-1">
+                  ഉപഭോക്തൃ വിവരങ്ങൾ • Patron Account
+                </span>
+                <h1 className="font-serif text-3xl sm:text-4xl text-[#171714]">
+                  {session.name}
+                </h1>
+                <p className="text-xs text-[#68645B] mt-1 font-mono">
+                  {session.email} • Kerala, India
+                </p>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <span className="label text-[10px] px-3.5 py-1.5 bg-[#F5F1E8] border border-[#DDD7CA] text-[#46513A] flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#46513A]" />
-              Verified Kerala Patron
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="label text-[10px] px-3.5 py-1.5 bg-[#F5F1E8] border border-[#DDD7CA] text-[#46513A] flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#46513A]" />
+                Verified Kerala Patron
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Account Tabs */}
         <div className="flex gap-2 border-b border-[#DDD7CA] overflow-x-auto pb-px mb-8 scrollbar-none">

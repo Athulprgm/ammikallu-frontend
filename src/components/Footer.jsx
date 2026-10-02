@@ -26,7 +26,7 @@ const POLICY_LINKS = [
 ];
 
 export default function Footer() {
-  const { navigateToShop } = useApp();
+  const { navigateToShop, setCurrentView } = useApp();
 
   return (
     <footer
@@ -146,6 +146,12 @@ export default function Footer() {
                 {link}
               </span>
             ))}
+            <button
+              onClick={() => setCurrentView('auth')}
+              className="label text-[10px] text-[#F5F1E8]/35 hover:text-[#C99518] cursor-pointer transition-colors"
+            >
+              Sign In / Admin
+            </button>
           </div>
         </div>
       </div>

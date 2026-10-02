@@ -130,64 +130,81 @@ export default function Navbar() {
               <Search className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
 
-            {/* Account dropdown (user is always logged in here) */}
-            <div className="relative" ref={accountRef}>
-              <button
-                onClick={() => setAccountDropOpen(!accountDropOpen)}
-                className={`flex items-center gap-1 p-2.5 cursor-pointer transition-colors duration-300 ${
-                  transparent ? 'text-white/80 hover:text-white' : 'text-[#68645B] hover:text-[#171714]'
-                }`}
-                aria-label="Account menu"
-                aria-expanded={accountDropOpen}
-                id="nav-account-btn"
-              >
-                <User className="w-[18px] h-[18px]" strokeWidth={1.5} />
-                <ChevronDown className="w-3 h-3" strokeWidth={1.5} />
-              </button>
+            {/* Account / Sign In */}
+            {session ? (
+              <div className="relative" ref={accountRef}>
+                <button
+                  onClick={() => setAccountDropOpen(!accountDropOpen)}
+                  className={`flex items-center gap-1.5 p-2.5 cursor-pointer transition-colors duration-300 ${
+                    transparent ? 'text-white/80 hover:text-white' : 'text-[#68645B] hover:text-[#171714]'
+                  }`}
+                  aria-label="Account menu"
+                  aria-expanded={accountDropOpen}
+                  id="nav-account-btn"
+                >
+                  <User className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                  <span className="label text-[10px] hidden lg:inline max-w-[90px] truncate">{session.name}</span>
+                  <ChevronDown className="w-3 h-3" strokeWidth={1.5} />
+                </button>
 
-              {accountDropOpen && (
-                <div className="absolute right-0 top-full mt-2 w-60 bg-white border border-[#DDD7CA] shadow-warm-xl z-50 animate-fade-in overflow-hidden">
-                  <div className="px-4 py-3.5 bg-[#FAF8F5] border-b border-[#DDD7CA]">
-                    <p className="text-sm font-semibold text-[#171714] truncate">
-                      Hello, {session?.name || 'Guest'}
-                    </p>
-                    <p className="text-xs text-[#68645B] truncate font-mono">{session?.email}</p>
+                {accountDropOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-60 bg-white border border-[#DDD7CA] shadow-warm-xl z-50 animate-fade-in overflow-hidden">
+                    <div className="px-4 py-3.5 bg-[#FAF8F5] border-b border-[#DDD7CA]">
+                      <p className="text-sm font-semibold text-[#171714] truncate">
+                        Hello, {session.name}
+                      </p>
+                      <p className="text-xs text-[#68645B] truncate font-mono">{session.email}</p>
+                    </div>
+                    <div className="py-1.5">
+                      <button
+                        onClick={() => { setCurrentView('account'); setAccountTab('orders'); setAccountDropOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                      >
+                        <Package className="w-4 h-4 text-[#C99518]" strokeWidth={1.5} />
+                        My Orders
+                      </button>
+                      <button
+                        onClick={() => { setCurrentView('account'); setAccountTab('wishlist'); setAccountDropOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                      >
+                        <Heart className="w-4 h-4 text-[#A63D2F]" strokeWidth={1.5} />
+                        Wishlist
+                      </button>
+                      <button
+                        onClick={() => { setCurrentView('account'); setAccountTab('addresses'); setAccountDropOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                      >
+                        <MapPin className="w-4 h-4 text-[#46513A]" strokeWidth={1.5} />
+                        Addresses
+                      </button>
+                    </div>
+                    <div className="border-t border-[#DDD7CA] py-1.5">
+                      <button
+                        onClick={() => { setAccountDropOpen(false); logout(); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#A63D2F] hover:bg-[#A63D2F]/5 transition-colors cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" strokeWidth={1.5} />
+                        Logout
+                      </button>
+                    </div>
                   </div>
-                  <div className="py-1.5">
-                    <button
-                      onClick={() => { setCurrentView('account'); setAccountTab('orders'); setAccountDropOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
-                    >
-                      <Package className="w-4 h-4 text-[#C99518]" strokeWidth={1.5} />
-                      My Orders
-                    </button>
-                    <button
-                      onClick={() => { setCurrentView('account'); setAccountTab('wishlist'); setAccountDropOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
-                    >
-                      <Heart className="w-4 h-4 text-[#A63D2F]" strokeWidth={1.5} />
-                      Wishlist
-                    </button>
-                    <button
-                      onClick={() => { setCurrentView('account'); setAccountTab('addresses'); setAccountDropOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#171714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
-                    >
-                      <MapPin className="w-4 h-4 text-[#46513A]" strokeWidth={1.5} />
-                      Addresses
-                    </button>
-                  </div>
-                  <div className="border-t border-[#DDD7CA] py-1.5">
-                    <button
-                      onClick={() => { setAccountDropOpen(false); logout(); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#A63D2F] hover:bg-[#A63D2F]/5 transition-colors cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4" strokeWidth={1.5} />
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setCurrentView('auth')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 cursor-pointer transition-colors duration-300 text-xs font-medium ${
+                  transparent
+                    ? 'border border-white/40 text-white hover:bg-white/10'
+                    : 'border border-[#DDD7CA] text-[#171714] hover:bg-[#171714] hover:text-white'
+                }`}
+                aria-label="Sign In"
+                id="nav-login-btn"
+              >
+                <User className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <span className="label text-[10px]">Sign In</span>
+              </button>
+            )}
 
             {/* Cart */}
             <button
@@ -296,20 +313,32 @@ export default function Navbar() {
               ))}
             </nav>
             <div className="px-6 pb-8 space-y-3">
-              <button
-                onClick={() => { setCurrentView('account'); setAccountTab('orders'); setMobileOpen(false); }}
-                className="w-full btn-outline-dark text-center justify-center flex items-center gap-2"
-              >
-                <User className="w-4 h-4" strokeWidth={1.5} />
-                My Account
-              </button>
-              <button
-                onClick={() => { setMobileOpen(false); logout(); }}
-                className="w-full btn-ghost text-center justify-center flex items-center gap-2 text-[#A63D2F]"
-              >
-                <LogOut className="w-4 h-4" strokeWidth={1.5} />
-                Logout
-              </button>
+              {session ? (
+                <>
+                  <button
+                    onClick={() => { setCurrentView('account'); setAccountTab('orders'); setMobileOpen(false); }}
+                    className="w-full btn-outline-dark text-center justify-center flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" strokeWidth={1.5} />
+                    My Account ({session.name})
+                  </button>
+                  <button
+                    onClick={() => { setMobileOpen(false); logout(); }}
+                    className="w-full btn-ghost text-center justify-center flex items-center gap-2 text-[#A63D2F]"
+                  >
+                    <LogOut className="w-4 h-4" strokeWidth={1.5} />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setCurrentView('auth'); setMobileOpen(false); }}
+                  className="w-full btn-primary text-center justify-center flex items-center gap-2"
+                >
+                  <User className="w-4 h-4" strokeWidth={1.5} />
+                  Sign In / Register
+                </button>
+              )}
             </div>
           </div>
         </div>
