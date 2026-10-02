@@ -29,8 +29,8 @@ function MainAppContent() {
   const { session, isAdmin, currentView, toast, setToast } = useApp();
   const [showLoading, setShowLoading] = useState(() => !hasSeenIntro());
 
-  // Auth gate — not signed in: show the Flipkart-style login screen only.
-  if (!session) {
+  // Standalone Auth View
+  if (currentView === 'auth') {
     return (
       <>
         <Toast toast={toast} onClose={() => setToast(null)} />
